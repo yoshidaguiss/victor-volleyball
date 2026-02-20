@@ -20,12 +20,14 @@ import Settings from "./pages/Settings";
 import VoiceInput from "./pages/VoiceInput";
 import AIAdvice from "./pages/AIAdvice";
 import TeamLogin from "./pages/TeamLogin";
+import Guide from "./pages/Guide";
 
 function Router() {
   return (
     <Switch>
       <Route path="/login" component={TeamLogin} />
       <Route path="/" component={Home} />
+      <Route path="/guide" component={Guide} />
       <Route path="/setup" component={MatchSetup} />
       <Route path="/input/:matchId" component={DataInput} />
       <Route path="/voice/:matchId" component={VoiceInput} />

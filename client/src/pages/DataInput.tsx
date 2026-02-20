@@ -20,6 +20,7 @@ import {
   Target,
   TrendingUp,
   AlertCircle,
+  CheckCircle,
 } from "lucide-react";
 
 /**
@@ -63,6 +64,7 @@ export default function DataInput() {
   const [pendingBlockAction, setPendingBlockAction] = useState<QuickAction | null>(null);
   const [showSetDetailsDialog, setShowSetDetailsDialog] = useState(false);
   const [pendingSetAction, setPendingSetAction] = useState<QuickAction | null>(null);
+  const [showEndSetDialog, setShowEndSetDialog] = useState(false);
 
   // データ取得
   const { data: match, refetch: refetchMatch } = trpc.matches.getById.useQuery(
@@ -98,6 +100,37 @@ export default function DataInput() {
       console.error(error);
     },
   });
+
+  // 試合更新
+  const updateMatch = trpc.matches.update.useMutation({
+    onSuccess: () => {
+      refetchMatch();
+      toast.success("セットを切り替えました");
+      setShowEndSetDialog(false);
+    },
+    onError: (error) => {
+      toast.error("セット切り替えに失敗しました");
+      console.error(error);
+    },
+  });
+
+  // セット終了ハンドラー
+  const handleEndSet = () => {
+    if (!match) return;
+    
+    // 最終セットチェック
+    if (match.currentSet >= match.sets) {
+      toast.error("これは最終セットです。試合を終了してください。");
+      setShowEndSetDialog(false);
+      return;
+    }
+
+    // セットを次に進める
+    updateMatch.mutate({
+      matchId: match.id,
+      currentSet: match.currentSet + 1,
+    });
+  };
 
   // プレー削除
   const deletePlay = trpc.plays.delete.useMutation({
@@ -417,6 +450,15 @@ export default function DataInput() {
                 <RefreshCw className="w-3 h-3 md:w-4 md:h-4 md:mr-2" />
                 <span className="hidden md:inline">交代</span>
               </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowEndSetDialog(true)}
+                className="flex-1 md:flex-none text-xs md:text-sm bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border-green-300"
+              >
+                <CheckCircle className="w-3 h-3 md:w-4 md:h-4 md:mr-2" />
+                <span className="hidden md:inline">セット終了</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -701,6 +743,33 @@ export default function DataInput() {
           open={showSubstitutionDialog}
           onOpenChange={setShowSubstitutionDialog}
         />
+      )}
+
+      {/* セット終了確認ダイアログ */}
+      {showEndSetDialog && match && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center" onClick={() => setShowEndSetDialog(false)}>
+          <Card className="max-w-md w-full mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-bold mb-4">🏐 セット終了確認</h2>
+            <p className="text-gray-700 mb-6">
+              第{match.currentSet}セットを終了して、第{match.currentSet + 1}セットに切り替えますか？
+            </p>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setShowEndSetDialog(false)}
+              >
+                キャンセル
+              </Button>
+              <Button 
+                className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                onClick={handleEndSet}
+              >
+                セット終了
+              </Button>
+            </div>
+          </Card>
+        </div>
       )}
 
       {/* キーボードショートカットヘルプ */}
