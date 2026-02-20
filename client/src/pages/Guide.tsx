@@ -22,8 +22,8 @@ export default function Guide() {
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* タイトル */}
         <div className="text-center mb-12">
-          <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
-            VICTOR
+          <div className="mb-6 flex justify-center">
+            <img src="/victor-logo.jpeg" alt="VICTOR" className="w-full max-w-xl h-auto" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">使い方ガイド</h1>
           <p className="text-lg text-gray-600">VICTORの基本的な使い方を詳しく説明します</p>

@@ -77,9 +77,9 @@ export default function Auth() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             ホームに戻る
           </Button>
-          <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2">
-            VICTOR
-          </h1>
+          <div className="mb-2 flex justify-center">
+            <img src="/victor-logo.jpeg" alt="VICTOR" className="w-full max-w-md h-auto" />
+          </div>
           <p className="text-gray-600">バレーボール分析システム</p>
         </div>
 

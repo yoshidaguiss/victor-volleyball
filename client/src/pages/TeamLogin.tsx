@@ -76,7 +76,9 @@ export default function TeamLogin() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-blue-600 mb-2">VICTOR</h1>
+          <div className="mb-2 flex justify-center">
+            <img src="/victor-logo.jpeg" alt="VICTOR" className="w-full max-w-md h-auto" />
+          </div>
           <p className="text-gray-600">AI搭載バレーボール分析システム</p>
         </div>
 
