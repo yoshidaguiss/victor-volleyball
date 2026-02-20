@@ -10,6 +10,8 @@ interface Team {
 interface TeamAuthContextType {
   team: Team | null;
   isLoading: boolean;
+  isAuthenticated: boolean;
+  teamName: string | null;
   login: (username: string, password: string) => Promise<void>;
   register: (teamName: string, username: string, password: string) => Promise<void>;
   logout: () => void;
@@ -66,7 +68,15 @@ export function TeamAuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <TeamAuthContext.Provider value={{ team, isLoading, login, register, logout }}>
+    <TeamAuthContext.Provider value={{ 
+      team, 
+      isLoading, 
+      isAuthenticated: team !== null,
+      teamName: team?.name || null,
+      login, 
+      register, 
+      logout 
+    }}>
       {children}
     </TeamAuthContext.Provider>
   );

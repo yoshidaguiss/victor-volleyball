@@ -112,6 +112,17 @@ export default function DataInput() {
     },
   });
 
+  // セット終了
+  const nextSetMutation = trpc.matches.nextSet.useMutation({
+    onSuccess: (data) => {
+      refetchMatch();
+      toast.success(`セット${data.currentSet}に切り替えました`);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "セット切り替えに失敗しました");
+    },
+  });
+
   // 削除確認ハンドラー
   const handleDeletePlay = (playId: number, playerName: string, playType: string) => {
     if (window.confirm(`${playerName}の${playType}を削除しますか？`)) {
@@ -416,6 +427,26 @@ export default function DataInput() {
               >
                 <RefreshCw className="w-3 h-3 md:w-4 md:h-4 md:mr-2" />
                 <span className="hidden md:inline">交代</span>
+              </Button>
+              <Button 
+                variant="default" 
+                size="sm"
+                onClick={() => {
+                  const currentSet = match.currentSet || 1;
+                  const maxSets = match.sets || 5;
+                  if (currentSet >= maxSets) {
+                    toast.error("これが最終セットです");
+                    return;
+                  }
+                  if (window.confirm(`セット${currentSet}を終了してセット${currentSet + 1}に進みますか？`)) {
+                    nextSetMutation.mutate({ matchId: Number(matchId) });
+                  }
+                }}
+                className="flex-1 md:flex-none text-xs md:text-sm bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              >
+                <Target className="w-3 h-3 md:w-4 md:h-4 md:mr-2" />
+                <span className="hidden md:inline">セット終了</span>
+                <span className="md:hidden">セット終了</span>
               </Button>
             </div>
           </div>

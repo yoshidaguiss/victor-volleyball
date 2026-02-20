@@ -173,6 +173,28 @@ export const appRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
       return await db.getMatchesByUserId(ctx.user.id);
     }),
+
+    nextSet: protectedProcedure
+      .input(z.object({
+        matchId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        const match = await db.getMatchById(input.matchId);
+        if (!match) {
+          throw new Error("試合が見つかりません");
+        }
+        
+        const currentSet = match.currentSet || 1;
+        const maxSets = match.sets || 5;
+        
+        if (currentSet >= maxSets) {
+          throw new Error("これが最終セットです");
+        }
+        
+        const nextSet = currentSet + 1;
+        await db.updateMatch(input.matchId, { currentSet: nextSet });
+        return { success: true, currentSet: nextSet };
+      }),
   }),
 
   // ラリー管理

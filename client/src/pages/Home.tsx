@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
+import { useTeamAuth } from "@/contexts/TeamAuthContext";
 import { 
   Users, 
   Activity, 
@@ -18,12 +19,16 @@ import {
   Target,
   Zap,
   Mic,
-  Settings
+  Settings,
+  LogIn,
+  LogOut,
+  BookOpen
 } from "lucide-react";
 
 export default function Home() {
   const [matchCode, setMatchCode] = useState("");
   const [, setLocation] = useLocation();
+  const { isAuthenticated, logout, teamName } = useTeamAuth();
   const { data: recentMatches } = trpc.matches.listRecent.useQuery({ limit: 5 });
   const getByCodeQuery = trpc.matches.getByCode.useQuery(
     { matchCode: matchCode.toUpperCase() },
@@ -48,8 +53,37 @@ export default function Home() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    toast.success("ログアウトしました");
+  };
+
   return (
     <div className="min-h-screen">
+      {/* ヘッダー - ログイン/ログアウトボタン */}
+      <div className="container max-w-7xl mx-auto px-4 py-4">
+        <div className="flex justify-end gap-2">
+          {isAuthenticated ? (
+            <>
+              <span className="text-sm text-muted-foreground flex items-center">
+                {teamName}でログイン中
+              </span>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                ログアウト
+              </Button>
+            </>
+          ) : (
+            <Link href="/auth">
+              <Button variant="outline" size="sm">
+                <LogIn className="w-4 h-4 mr-2" />
+                ログイン
+              </Button>
+            </Link>
+          )}
+        </div>
+      </div>
+
       {/* Hero Section */}
       <div className="container max-w-7xl mx-auto px-4 py-6 md:py-12">
         <div className="text-center mb-8 md:mb-16">
@@ -88,9 +122,15 @@ export default function Home() {
                 新しい試合を開始
               </Button>
             </Link>
+            <Link href="/guide">
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6 glass-card border-2 hover:scale-105 transition-transform">
+                <BookOpen className="w-5 h-5 mr-2" />
+                使い方ガイド
+              </Button>
+            </Link>
             <div className="flex gap-2">
               <Input
-                placeholder="試合コードを入力（ 8桁）"
+                placeholder="試合コードを入力（8桁）"
                 value={matchCode}
                 onChange={(e) => setMatchCode(e.target.value.toUpperCase())}
                 onKeyDown={(e) => e.key === "Enter" && handleJoinMatch()}
@@ -149,83 +189,105 @@ export default function Home() {
             </p>
             <div className="flex items-center gap-2 text-sm font-medium text-green-600">
               <TrendingUp className="w-4 h-4" />
-              選手別・チーム別統計を自動計算
+              リアルタイム同期
             </div>
           </div>
         </div>
 
         {/* Recent Matches */}
-        <div className="fade-in px-2">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-8 flex items-center gap-2 md:gap-3">
-            <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-              <Clock className="w-5 h-5 md:w-6 md:h-6 text-white" />
-            </div>
-            最近の試合
-          </h2>
-          {recentMatches && recentMatches.length > 0 ? (
-            <div className="grid gap-4">
-              {recentMatches.map((match) => (
-                <div key={match.id} className="clean-card p-4 md:p-6">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Badge variant={match.status === "completed" ? "secondary" : "default"}>
-                          {match.status === "preparing" && "準備中"}
-                          {match.status === "inProgress" && "進行中"}
-                          {match.status === "completed" && "終了"}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(match.date).toLocaleDateString("ja-JP")}
-                        </span>
-                      </div>
-                      <h3 className="text-lg md:text-xl font-bold mb-2">{match.homeTeamName} vs {match.awayTeamName}</h3>
-                      <div className="flex items-center gap-4 mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl md:text-3xl font-black score-display text-primary">
-                            {Array.isArray(match.scoreHome) ? match.scoreHome.reduce((a: number, b: number) => a + b, 0) : 0}
-                          </span>
-                          <span className="text-muted-foreground font-bold">-</span>
-                          <span className="text-2xl md:text-3xl font-black score-display text-primary">
-                            {Array.isArray(match.scoreAway) ? match.scoreAway.reduce((a: number, b: number) => a + b, 0) : 0}
-                          </span>
+        {recentMatches && recentMatches.length > 0 && (
+          <Card className="mb-8 md:mb-16 mx-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                最近の試合
+              </CardTitle>
+              <CardDescription>
+                過去の試合記録にアクセス
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recentMatches.map((match) => (
+                  <Link key={match.id} href={`/coach/${match.id}`}>
+                    <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent cursor-pointer transition-colors">
+                      <div className="flex items-center gap-4">
+                        <Trophy className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium">
+                            {match.team?.name || "チーム名なし"} vs {match.opponentName}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(match.createdAt).toLocaleDateString('ja-JP')}
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">試合コード:</span>
-                        <span className="font-mono font-bold text-primary">{match.matchCode}</span>
-                      </div>
+                      <Badge variant="outline">{match.matchCode}</Badge>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Link href={`/input/${match.id}`}>
-                        <Button variant="outline" size="sm" className="text-xs md:text-sm">
-                          <FileText className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                          記録
-                        </Button>
-                      </Link>
-                      <Link href={`/voice/${match.id}`}>
-                        <Button variant="outline" size="sm" className="text-xs md:text-sm">
-                          <Mic className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                          音声
-                        </Button>
-                      </Link>
-                      <Link href={`/coach/${match.id}`}>
-                        <Button size="sm">
-                          <BarChart3 className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                          分析
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="glass-card p-12 text-center">
-              <div className="text-foreground/60 text-lg">
-                まだ試合がありません。新しい試合を開始してください。
+                  </Link>
+                ))}
               </div>
-            </div>
-          )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-2">
+          <Card className="fade-in">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                詳細レポート
+              </CardTitle>
+              <CardDescription>
+                試合後の詳細な分析レポートをPDF出力
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  選手別パフォーマンス分析
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  攻撃・サーブ・レシーブのヒートマップ
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  セット別統計と推移グラフ
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="fade-in">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mic className="w-5 h-5" />
+                音声入力対応
+              </CardTitle>
+              <CardDescription>
+                音声でプレーを記録し、さらに高速化
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  「7番アタック成功」で即座に記録
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  ハンズフリーでの高速入力
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  自然言語での柔軟な記録
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
