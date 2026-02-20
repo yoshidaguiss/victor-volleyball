@@ -20,6 +20,7 @@ import Settings from "./pages/Settings";
 import VoiceInput from "./pages/VoiceInput";
 import AIAdvice from "./pages/AIAdvice";
 import Guide from "./pages/Guide";
+import Auth from "./pages/Auth";
 
 function Router() {
   return (
@@ -39,6 +40,7 @@ function Router() {
       <Route path={"/player/:playerId"} component={PlayerStats} />
       <Route path={"/settings"} component={Settings} />
       <Route path={"/guide"} component={Guide} />
+      <Route path={"/auth"} component={Auth} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
