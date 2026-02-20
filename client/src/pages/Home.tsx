@@ -21,14 +21,13 @@ import {
   Mic,
   Settings,
   LogIn,
-  LogOut,
   BookOpen
 } from "lucide-react";
 
 export default function Home() {
   const [matchCode, setMatchCode] = useState("");
   const [, setLocation] = useLocation();
-  const { isAuthenticated, logout, teamName } = useTeamAuth();
+  const { isAuthenticated, teamName } = useTeamAuth();
   const { data: recentMatches } = trpc.matches.listRecent.useQuery({ limit: 5 });
   const getByCodeQuery = trpc.matches.getByCode.useQuery(
     { matchCode: matchCode.toUpperCase() },
@@ -53,27 +52,14 @@ export default function Home() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    toast.success("ログアウトしました");
-  };
+
 
   return (
     <div className="min-h-screen">
       {/* ヘッダー - ログイン/ログアウトボタン */}
       <div className="container max-w-7xl mx-auto px-4 py-4">
         <div className="flex justify-end gap-2">
-          {isAuthenticated ? (
-            <>
-              <span className="text-sm text-muted-foreground flex items-center">
-                {teamName}でログイン中
-              </span>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                ログアウト
-              </Button>
-            </>
-          ) : (
+          {!isAuthenticated && (
             <Link href="/auth">
               <Button variant="outline" size="sm">
                 <LogIn className="w-4 h-4 mr-2" />
@@ -93,9 +79,9 @@ export default function Home() {
               AI搭載バレーボール分析システム
             </div>
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-4 md:mb-6 gradient-text bounce-in" style={{animationDelay: '0.1s'}}>
-            VICTOR
-          </h1>
+          <div className="mb-4 md:mb-6 bounce-in flex justify-center" style={{animationDelay: '0.1s'}}>
+            <img src="/victor-logo.jpeg" alt="VICTOR" className="w-full max-w-2xl h-auto" />
+          </div>
           <p className="text-base sm:text-lg md:text-xl text-foreground/80 mb-8 md:mb-12 max-w-2xl mx-auto font-medium bounce-in px-4" style={{animationDelay: '0.2s'}}>
             リアルタイムデータ記録・分析・ AI支援戦術提案で、チームのパフォーマンスを最大化
           </p>

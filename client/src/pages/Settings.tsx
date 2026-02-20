@@ -6,12 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { ArrowLeft, Key, Save, Trash2, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Key, Save, Trash2, Eye, EyeOff, LogOut } from "lucide-react";
+import { useTeamAuth } from "@/contexts/TeamAuthContext";
 
 export default function Settings() {
   const [, setLocation] = useLocation();
   const [geminiApiKey, setGeminiApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
+  const { isAuthenticated, logout, teamName } = useTeamAuth();
 
   // APIキーを取得
   const { data: existingKey, refetch } = trpc.apiKeys.get.useQuery({ provider: "gemini" });
@@ -55,6 +57,12 @@ export default function Settings() {
     if (confirm("本当にAPIキーを削除しますか？AI分析機能が使用できなくなります。")) {
       deleteApiKey.mutate({ provider: "gemini" });
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    toast.success("ログアウトしました");
+    setLocation("/");
   };
 
   return (
@@ -180,6 +188,31 @@ export default function Settings() {
             </div>
           </CardContent>
         </Card>
+
+        {/* ログアウト */}
+        {isAuthenticated && (
+          <Card className="mt-6 border-2 border-red-200">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <LogOut className="w-5 h-5" />
+                アカウント
+              </CardTitle>
+              <CardDescription>
+                {teamName}でログイン中です
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                variant="destructive"
+                onClick={handleLogout}
+                className="w-full"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                ログアウト
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* 今後の機能 */}
         <Card className="mt-6 border-2 border-gray-200">
