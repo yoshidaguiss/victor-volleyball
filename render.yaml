@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: victor-volleyball
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: pnpm install && pnpm run build
+    startCommand: pnpm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BASIC_AUTH_PASSWORD
+        value: meikei
+      - key: DATABASE_URL
+        fromDatabase:
+          name: victor-db
+          property: connectionString
+
+databases:
+  - name: victor-db
+    databaseName: volleyball_analyzer
+    user: victor
+    plan: free
+    region: singapore
