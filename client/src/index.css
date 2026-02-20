@@ -1,0 +1,209 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+/* Apple風デザインシステム */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* プライマリーカラー - 落ち着いたブルー */
+  --primary: oklch(0.55 0.18 240);
+  --primary-foreground: oklch(1 0 0);
+  
+  /* チャートカラー */
+  --chart-1: oklch(0.60 0.20 240);
+  --chart-2: oklch(0.65 0.18 160);
+  --chart-3: oklch(0.70 0.16 60);
+  --chart-4: oklch(0.65 0.18 300);
+  --chart-5: oklch(0.60 0.20 20);
+  
+  --radius: 1rem;
+  
+  /* Apple風フォント */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  
+  /* 背景 - クリーンな白 */
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.15 0.01 240);
+  
+  /* カード - 柔らかい白 */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.01 240);
+  
+  /* ポップオーバー */
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.01 240);
+  
+  /* セカンダリー - ライトグレー */
+  --secondary: oklch(0.96 0.005 240);
+  --secondary-foreground: oklch(0.15 0.01 240);
+  
+  /* ミュート */
+  --muted: oklch(0.97 0.005 240);
+  --muted-foreground: oklch(0.50 0.01 240);
+  
+  /* アクセント - ソフトブルー */
+  --accent: oklch(0.95 0.01 240);
+  --accent-foreground: oklch(0.15 0.01 240);
+  
+  /* デストラクティブ - 落ち着いたレッド */
+  --destructive: oklch(0.55 0.20 25);
+  --destructive-foreground: oklch(1 0 0);
+  
+  /* ボーダー - 薄いグレー */
+  --border: oklch(0.92 0.005 240);
+  --input: oklch(0.92 0.005 240);
+  --ring: oklch(0.55 0.18 240);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply antialiased;
+  }
+
+  /* ガラスモーフィズム効果 */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 柔らかいシャドウ */
+.soft-shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.soft-shadow-lg {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* スムーズなアニメーション */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* スムーズなスクロール */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* カスタムユーティリティ */
+@layer utilities {
+  /* 洗練されたカードスタイル */
+  .clean-card {
+    @apply bg-card border border-border rounded-xl shadow-sm;
+    transition: all 0.2s ease;
+  }
+
+  .clean-card:hover {
+    @apply shadow-md border-primary/20;
+  }
+
+  /* プライマリーボタン */
+  .primary-button {
+    @apply bg-primary text-primary-foreground rounded-lg px-6 py-3 font-medium;
+    @apply hover:opacity-90 active:scale-[0.98];
+    transition: all 0.2s ease;
+  }
+
+  /* グラデーションテキスト - 控えめ */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary via-primary to-blue-600 bg-clip-text text-transparent;
+    @apply font-black;
+  }
+
+  /* ステータスバッジ */
+  .status-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .status-badge-success {
+    @apply bg-green-100 text-green-700 border border-green-200;
+  }
+
+  .status-badge-info {
+    @apply bg-blue-100 text-blue-700 border border-blue-200;
+  }
+
+  .status-badge-warning {
+    @apply bg-yellow-100 text-yellow-700 border border-yellow-200;
+  }
+
+  /* スコア表示 */
+  .score-display {
+    @apply font-black tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* アニメーション - 控えめ */
+  .fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* コンテナのカスタマイズ */
+@layer components {
+  .container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Flexのデフォルト設定 */
+  .flex {
+    min-width: 0;
+    min-height: 0;
+  }
+}
