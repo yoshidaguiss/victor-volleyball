@@ -1,7 +1,7 @@
 import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { users, teams, players, matches, rallies, plays, aiAnalyses, substitutions, timeouts, serveOrders, teamAccounts } from "../drizzle/schema";
-import type { User, InsertUser, Team, InsertTeam, Player, InsertPlayer, Match, InsertMatch, Rally, InsertRally, Play, InsertPlay, AIAnalysis, InsertAIAnalysis, Substitution, InsertSubstitution, Timeout, InsertTimeout, ServeOrder, InsertServeOrder, TeamAccount, InsertTeamAccount } from "../drizzle/schema";
+import { users, teams, players, matches, rallies, plays, aiAnalyses, substitutions, timeouts, serveOrders } from "../drizzle/schema";
+import type { User, InsertUser, Team, InsertTeam, Player, InsertPlayer, Match, InsertMatch, Rally, InsertRally, Play, InsertPlay, AIAnalysis, InsertAIAnalysis, Substitution, InsertSubstitution, Timeout, InsertTimeout, ServeOrder, InsertServeOrder } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -373,30 +373,4 @@ export async function deletePlay(playId: number) {
   if (!db) throw new Error("Database not available");
   
   await db.delete(plays).where(eq(plays.id, playId));
-}
-
-// Team Account functions
-export async function createTeamAccount(account: InsertTeamAccount) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.insert(teamAccounts).values(account);
-  return result[0].insertId;
-}
-
-export async function getTeamAccountByUsername(username: string): Promise<TeamAccount | undefined> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(teamAccounts).where(eq(teamAccounts.username, username));
-  return result[0];
-}
-
-export async function updateTeamAccountLastLogin(accountId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  await db.update(teamAccounts)
-    .set({ lastLogin: new Date() })
-    .where(eq(teamAccounts.id, accountId));
 }

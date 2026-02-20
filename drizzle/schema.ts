@@ -223,18 +223,3 @@ export const serveOrders = mysqlTable("serveOrders", {
 
 export type ServeOrder = typeof serveOrders.$inferSelect;
 export type InsertServeOrder = typeof serveOrders.$inferInsert;
-
-/**
- * Team Accounts table - チームアカウント管理
- */
-export const teamAccounts = mysqlTable("team_accounts", {
-  id: int("id").autoincrement().primaryKey(),
-  teamId: int("teamId").notNull(),
-  username: varchar("username", { length: 100 }).notNull().unique(),
-  password: varchar("password", { length: 255 }).notNull(), // ハッシュ化されたパスワード
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  lastLogin: timestamp("lastLogin"),
-});
-
-export type TeamAccount = typeof teamAccounts.$inferSelect;
-export type InsertTeamAccount = typeof teamAccounts.$inferInsert;

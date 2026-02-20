@@ -4,7 +4,6 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { TeamAuthProvider } from "./contexts/TeamAuthContext";
 import Home from "./pages/Home";
 import MatchSetup from "./pages/MatchSetup";
 import DataInput from "./pages/DataInput";
@@ -19,29 +18,25 @@ import PlayerStats from "./pages/PlayerStats";
 import Settings from "./pages/Settings";
 import VoiceInput from "./pages/VoiceInput";
 import AIAdvice from "./pages/AIAdvice";
-import TeamLogin from "./pages/TeamLogin";
-import Guide from "./pages/Guide";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/login" component={TeamLogin} />
-      <Route path="/" component={Home} />
-      <Route path="/guide" component={Guide} />
-      <Route path="/setup" component={MatchSetup} />
-      <Route path="/input/:matchId" component={DataInput} />
-      <Route path="/voice/:matchId" component={VoiceInput} />
-      <Route path="/coach/:matchId" component={CoachView} />
-      <Route path="/ai-advice/:matchId" component={AIAdvice} />
-      <Route path="/players" component={Players} />
-      <Route path="/heatmap/:matchId" component={Heatmaps} />
-      <Route path="/comparison" component={MatchComparison} />
-      <Route path="/teams" component={Teams} />
-      <Route path="/teams/:teamId" component={TeamDetail} />
-      <Route path="/lineup/:matchId" component={StartingLineup} />
-      <Route path="/player/:playerId" component={PlayerStats} />
-      <Route path="/settings" component={Settings} />
-      <Route path="/404" component={NotFound} />
+      <Route path={"/"} component={Home} />
+      <Route path={"/setup"} component={MatchSetup} />
+      <Route path={"/input/:matchId"} component={DataInput} />
+      <Route path={"/voice/:matchId"} component={VoiceInput} />
+      <Route path={"/coach/:matchId"} component={CoachView} />
+      <Route path={"/ai-advice/:matchId"} component={AIAdvice} />
+      <Route path={"/players"} component={Players} />
+      <Route path={"/heatmap/:matchId"} component={Heatmaps} />
+      <Route path={"/comparison"} component={MatchComparison} />
+      <Route path={"/teams"} component={Teams} />
+      <Route path={"/teams/:teamId"} component={TeamDetail} />
+      <Route path={"/lineup/:matchId"} component={StartingLineup} />
+      <Route path={"/player/:playerId"} component={PlayerStats} />
+      <Route path={"/settings"} component={Settings} />
+      <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -52,10 +47,8 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <TeamAuthProvider>
-            <Toaster />
-            <Router />
-          </TeamAuthProvider>
+          <Toaster />
+          <Router />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

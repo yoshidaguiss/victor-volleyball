@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTeamAuth } from "@/contexts/TeamAuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,14 +18,10 @@ import {
   Target,
   Zap,
   Mic,
-  Settings,
-  BookOpen,
-  LogOut,
-  LogIn
+  Settings
 } from "lucide-react";
 
 export default function Home() {
-  const { team, logout } = useTeamAuth();
   const [matchCode, setMatchCode] = useState("");
   const [, setLocation] = useLocation();
   const { data: recentMatches } = trpc.matches.listRecent.useQuery({ limit: 5 });
@@ -58,30 +53,6 @@ export default function Home() {
       {/* Hero Section */}
       <div className="container max-w-7xl mx-auto px-4 py-6 md:py-12">
         <div className="text-center mb-8 md:mb-16">
-          <div className="flex justify-center items-center gap-4 mb-4">
-            {team ? (
-              <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur rounded-full shadow-sm">
-                <Users className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-gray-700">{team.name}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={logout}
-                  className="h-8 px-3 text-xs"
-                >
-                  <LogOut className="h-3 w-3 mr-1" />
-                  ログアウト
-                </Button>
-              </div>
-            ) : (
-              <Link href="/login">
-                <Button variant="outline" size="sm" className="shadow-sm">
-                  <LogIn className="h-4 w-4 mr-1" />
-                  ログイン
-                </Button>
-              </Link>
-            )}
-          </div>
           <div className="inline-block mb-4 md:mb-6 bounce-in">
             <div className="status-badge status-badge-info text-xs md:text-sm">
               <Sparkles className="w-3 h-3 md:w-4 md:h-4" />
@@ -97,12 +68,6 @@ export default function Home() {
           
           {/* Quick Actions */}
           <div className="flex flex-col gap-3 md:gap-4 justify-center items-center mb-8 md:mb-12 bounce-in px-2" style={{animationDelay: '0.3s'}}>
-            <Link href="/guide">
-              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg px-8 py-6 hover:scale-105 transition-transform shadow-lg">
-                <BookOpen className="w-5 h-5 mr-2" />
-                使い方ガイド
-              </Button>
-            </Link>
             <div className="flex flex-row gap-2 md:gap-4 justify-center w-full md:w-auto">
               <Link href="/teams">
                 <Button size="lg" variant="outline" className="text-lg px-8 py-6 glass-card border-2 hover:scale-105 transition-transform">
