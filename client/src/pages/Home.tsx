@@ -18,7 +18,8 @@ import {
   Target,
   Zap,
   Mic,
-  Settings
+  Settings,
+  BookOpen
 } from "lucide-react";
 
 export default function Home() {
@@ -68,6 +69,12 @@ export default function Home() {
           
           {/* Quick Actions */}
           <div className="flex flex-col gap-3 md:gap-4 justify-center items-center mb-8 md:mb-12 bounce-in px-2" style={{animationDelay: '0.3s'}}>
+            <Link href="/guide">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg px-8 py-6 hover:scale-105 transition-transform shadow-lg">
+                <BookOpen className="w-5 h-5 mr-2" />
+                使い方ガイド
+              </Button>
+            </Link>
             <div className="flex flex-row gap-2 md:gap-4 justify-center w-full md:w-auto">
               <Link href="/teams">
                 <Button size="lg" variant="outline" className="text-lg px-8 py-6 glass-card border-2 hover:scale-105 transition-transform">
