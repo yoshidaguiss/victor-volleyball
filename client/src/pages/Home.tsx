@@ -208,7 +208,7 @@ export default function Home() {
                         <Trophy className="w-5 h-5 text-muted-foreground" />
                         <div>
                           <div className="font-medium">
-                            {match.team?.name || "チーム名なし"} vs {match.opponentName}
+                            {match.homeTeamName || "チーム名なし"} vs {match.awayTeamName || "対戦相手"}
                           </div>
                           <div className="text-sm text-muted-foreground">
                             {new Date(match.createdAt).toLocaleDateString('ja-JP')}

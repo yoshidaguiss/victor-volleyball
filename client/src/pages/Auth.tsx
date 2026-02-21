@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,8 +25,8 @@ export default function Auth() {
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerLoading, setRegisterLoading] = useState(false);
 
-  const loginMutation = trpc.teams.login.useMutation();
-  const registerMutation = trpc.teams.register.useMutation();
+  const loginMutation = trpc.teamAuth.login.useMutation();
+  const registerMutation = trpc.teamAuth.register.useMutation();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,12 +43,8 @@ export default function Auth() {
         password: loginPassword 
       });
       
-      if (result.teamId) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          teamId: result.teamId,
-          teamName: result.teamName,
-          username: result.username
-        }));
+      if (result.success && result.team) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(result.team));
         toast.success("ログインしました");
         setLocation("/");
       }
@@ -80,12 +76,8 @@ export default function Auth() {
         password: registerPassword 
       });
       
-      if (result.teamId) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          teamId: result.teamId,
-          teamName: result.teamName,
-          username: result.username
-        }));
+      if (result.success && result.team) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(result.team));
         toast.success("チーム登録が完了しました");
         setLocation("/");
       }

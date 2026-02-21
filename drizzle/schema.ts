@@ -43,6 +43,8 @@ export const teams = mysqlTable("teams", {
   teamName: varchar("teamName", { length: 255 }).notNull(),
   season: varchar("season", { length: 50 }),
   userId: int("userId").notNull(),
+  username: varchar("username", { length: 255 }),
+  passwordHash: varchar("passwordHash", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

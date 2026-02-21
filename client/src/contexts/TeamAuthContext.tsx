@@ -27,7 +27,6 @@ export function TeamAuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = trpc.teamAuth.login.useMutation();
   const registerMutation = trpc.teamAuth.register.useMutation();
-  const logoutMutation = trpc.teamAuth.logout.useMutation();
 
   // Load team from localStorage on mount
   useEffect(() => {
@@ -61,10 +60,9 @@ export function TeamAuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    logoutMutation.mutate();
     setTeam(null);
     localStorage.removeItem(STORAGE_KEY);
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   return (
