@@ -25,8 +25,8 @@ export default function Auth() {
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerLoading, setRegisterLoading] = useState(false);
 
-  const loginMutation = trpc.teamAuth.login.useMutation();
-  const registerMutation = trpc.teamAuth.register.useMutation();
+  const loginMutation = trpc.teams.login.useMutation();
+  const registerMutation = trpc.teams.register.useMutation();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,8 +43,12 @@ export default function Auth() {
         password: loginPassword 
       });
       
-      if (result.success && result.team) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(result.team));
+      if (result.teamId) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          teamId: result.teamId,
+          teamName: result.teamName,
+          username: result.username
+        }));
         toast.success("ログインしました");
         setLocation("/");
       }
@@ -76,8 +80,12 @@ export default function Auth() {
         password: registerPassword 
       });
       
-      if (result.success && result.team) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(result.team));
+      if (result.teamId) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          teamId: result.teamId,
+          teamName: result.teamName,
+          username: result.username
+        }));
         toast.success("チーム登録が完了しました");
         setLocation("/");
       }

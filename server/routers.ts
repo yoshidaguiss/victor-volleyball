@@ -37,6 +37,38 @@ export const appRouter = router({
 
   // チーム管理
   teams: router({
+    register: publicProcedure
+      .input(z.object({
+        teamName: z.string(),
+        username: z.string(),
+        password: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const existingTeam = await db.getTeamByUsername(input.username);
+        if (existingTeam) {
+          throw new Error("このユーザーIDは既に使用されています");
+        }
+        const teamId = await db.createTeamWithAuth({
+          teamName: input.teamName,
+          username: input.username,
+          password: input.password,
+        });
+        return { teamId, teamName: input.teamName, username: input.username };
+      }),
+
+    login: publicProcedure
+      .input(z.object({
+        username: z.string(),
+        password: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const team = await db.verifyTeamCredentials(input.username, input.password);
+        if (!team) {
+          throw new Error("ユーザーIDまたはパスワードが正しくありません");
+        }
+        return { teamId: team.id, teamName: team.teamName, username: input.username };
+      }),
+
     create: protectedProcedure
       .input(z.object({
         teamName: z.string(),
