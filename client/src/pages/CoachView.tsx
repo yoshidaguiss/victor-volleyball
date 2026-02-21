@@ -1281,13 +1281,14 @@ export default function CoachView() {
                     setPlays.forEach((play: any) => {
                       const key = `${play.teamSide}-${play.playerId}`;
                       if (!playerPerformance[key]) {
-                        const players = play.teamSide === "home" ? homePlayers : awayPlayers;
-                        const player = players?.find((p: any) => p.id === play.playerId);
+                        // playデータから直接選手情報を取得（シャドウイング回避）
+                        const playerName = play.playerName || "Unknown";
+                        const playerNumber = play.playerNumber || 0;
                         playerPerformance[key] = {
                           teamSide: play.teamSide,
                           playerId: play.playerId,
-                          playerName: player?.name || "Unknown",
-                          playerNumber: player?.number || 0,
+                          playerName,
+                          playerNumber,
                           points: 0,
                           errors: 0,
                           total: 0,
@@ -1302,11 +1303,11 @@ export default function CoachView() {
                       }
                     });
 
-                    const homePlayers = Object.values(playerPerformance)
+                    const homePlayerPerf = Object.values(playerPerformance)
                       .filter((p: any) => p.teamSide === "home")
                       .sort((a: any, b: any) => b.points - a.points);
                     
-                    const awayPlayers = Object.values(playerPerformance)
+                    const awayPlayerPerf = Object.values(playerPerformance)
                       .filter((p: any) => p.teamSide === "away")
                       .sort((a: any, b: any) => b.points - a.points);
 
@@ -1377,7 +1378,7 @@ export default function CoachView() {
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {(homePlayers || []).map((p: any, idx: number) => (
+                                    {(homePlayerPerf || []).map((p: any, idx: number) => (
                                       <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
                                         <td className="py-2 px-3 font-semibold">{p.playerNumber}</td>
                                         <td className="py-2 px-3">{p.playerName}</td>
@@ -1409,7 +1410,7 @@ export default function CoachView() {
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {(awayPlayers || []).map((p: any, idx: number) => (
+                                    {(awayPlayerPerf || []).map((p: any, idx: number) => (
                                       <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
                                         <td className="py-2 px-3 font-semibold">{p.playerNumber}</td>
                                         <td className="py-2 px-3">{p.playerName}</td>
