@@ -46,7 +46,6 @@ export const appRouter = router({
         const teamId = await db.createTeam({
           teamName: input.teamName,
           season: input.season,
-          userId: ctx.user?.id || 0,
         });
         return { teamId };
       }),
@@ -133,7 +132,6 @@ export const appRouter = router({
           scoreAway: [],
           timeoutsHome: 0,
           timeoutsAway: 0,
-          userId: ctx.user?.id || 0,
         });
         return { matchId, matchCode };
       }),

@@ -104,7 +104,8 @@ export async function getTeamsByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
   
-  return await db.select().from(teams).where(eq(teams.userId, userId)).orderBy(desc(teams.createdAt));
+  // Return all teams since we removed authentication
+  return await db.select().from(teams).orderBy(desc(teams.createdAt));
 }
 
 export async function getTeamById(teamId: number) {

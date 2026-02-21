@@ -42,7 +42,6 @@ export const teams = mysqlTable("teams", {
   id: int("id").autoincrement().primaryKey(),
   teamName: varchar("teamName", { length: 255 }).notNull(),
   season: varchar("season", { length: 50 }),
-  userId: int("userId").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -85,7 +84,6 @@ export const matches = mysqlTable("matches", {
   scoreAway: json("scoreAway").$type<number[]>(),
   timeoutsHome: int("timeoutsHome").default(0).notNull(),
   timeoutsAway: int("timeoutsAway").default(0).notNull(),
-  userId: int("userId").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
