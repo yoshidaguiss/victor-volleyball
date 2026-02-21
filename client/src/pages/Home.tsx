@@ -180,7 +180,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {recentMatches.map((match) => (
+                {(recentMatches || []).map((match) => (
                   <div key={match.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent transition-colors">
                     <div className="flex items-center gap-4">
                       <Trophy className="w-5 h-5 text-muted-foreground" />

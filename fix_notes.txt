@@ -1,0 +1,14 @@
+CoachView.tsx の修正が必要な箇所:
+
+1. 行35: match?.awayTeamId が存在しない（スキーマから削除済み）→ awayPlayersクエリを無効化
+2. 行991: homePlayers.map → homePlayers?.map に変更（安全アクセス）
+3. 行1001: awayPlayers.map → awayPlayers?.map に変更
+4. 行1032: homeContributions.map → 安全アクセス
+5. 行1055: homeContributions.map → 安全アクセス
+6. 行1095: awayContributions.map → 安全アクセス
+7. 行1118: awayContributions.map → 安全アクセス
+8. 行1373: homePlayers.map → homePlayers?.map
+9. 行1405: awayPlayers.map → awayPlayers?.map
+
+根本原因: awayTeamIdがスキーマにないため、awayPlayersクエリが teamId=0 で実行されるか、
+homePlayers/awayPlayersがundefinedのまま.mapが呼ばれている

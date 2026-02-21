@@ -209,7 +209,7 @@ export default function CoachView() {
     const suggestions: string[] = [];
     
     // ホームチームの調子の良い選手を検出
-    const hotHomePlayers = homePlayers
+    const hotHomePlayers = (homePlayers || [])
       .map((player: any) => ({
         player,
         stats: calculatePlayerStats(player.id, "home"),
@@ -949,7 +949,7 @@ export default function CoachView() {
           {/* 得失点関与分析タブ */}
           <TabsContent value="contribution" className="space-y-6 mt-6">
             {(() => {
-              if (!plays || !homePlayers || !awayPlayers) {
+              if (!plays) {
                 return (
                   <Card className="bg-white/80 backdrop-blur-sm border-gray-200 soft-shadow">
                     <CardContent className="text-center py-12">
@@ -988,7 +988,7 @@ export default function CoachView() {
               };
 
               // ホームチームの関与度データ
-              const homeContributions = homePlayers.map((player: any) => {
+              const homeContributions = (homePlayers || []).map((player: any) => {
                 const contrib = calculateContribution(player.id, "home");
                 return {
                   name: player.name,
@@ -998,7 +998,7 @@ export default function CoachView() {
               }).sort((a, b) => b.plusMinus - a.plusMinus);
 
               // アウェイチームの関与度データ
-              const awayContributions = awayPlayers.map((player: any) => {
+              const awayContributions = (awayPlayers || []).map((player: any) => {
                 const contrib = calculateContribution(player.id, "away");
                 return {
                   name: player.name,
@@ -1370,7 +1370,7 @@ export default function CoachView() {
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {homePlayers.map((p: any, idx: number) => (
+                                    {(homePlayers || []).map((p: any, idx: number) => (
                                       <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
                                         <td className="py-2 px-3 font-semibold">{p.playerNumber}</td>
                                         <td className="py-2 px-3">{p.playerName}</td>
@@ -1402,7 +1402,7 @@ export default function CoachView() {
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {awayPlayers.map((p: any, idx: number) => (
+                                    {(awayPlayers || []).map((p: any, idx: number) => (
                                       <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
                                         <td className="py-2 px-3 font-semibold">{p.playerNumber}</td>
                                         <td className="py-2 px-3">{p.playerName}</td>
