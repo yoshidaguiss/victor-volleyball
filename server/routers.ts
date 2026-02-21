@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { apiKeysRouter } from "./routers/apiKeys";
@@ -370,7 +370,7 @@ export const appRouter = router({
         const analysisId = await db.createAIAnalysis({
           ...input,
           model: "gemini-pro",
-          userId: ctx.user.id,
+          userId: 0,
         });
         return { analysisId };
       }),
@@ -400,7 +400,7 @@ export const appRouter = router({
           model: "gemini-pro",
           prompt: `Analysis for ${input.scope}`,
           response: analysis.summary,
-          userId: ctx.user.id,
+          userId: 0,
         });
 
         return { analysisId, analysis };

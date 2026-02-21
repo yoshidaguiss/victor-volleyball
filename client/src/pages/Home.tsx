@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +20,9 @@ import {
   Zap,
   Mic,
   Settings,
-
-  BookOpen
+  BookOpen,
+  ClipboardEdit,
+  Monitor
 } from "lucide-react";
 
 export default function Home() {
@@ -52,11 +53,8 @@ export default function Home() {
     }
   };
 
-
-
   return (
     <div className="min-h-screen">
-
 
       {/* Hero Section */}
       <div className="container max-w-7xl mx-auto px-4 py-6 md:py-12">
@@ -169,7 +167,7 @@ export default function Home() {
         </div>
 
         {/* Recent Matches */}
-        {recentMatches && recentMatches.length > 0 && (
+        {Array.isArray(recentMatches) && recentMatches.length > 0 && (
           <Card className="mb-8 md:mb-16 mx-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -183,22 +181,40 @@ export default function Home() {
             <CardContent>
               <div className="space-y-3">
                 {recentMatches.map((match) => (
-                  <Link key={match.id} href={`/coach/${match.id}`}>
-                    <div className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent cursor-pointer transition-colors">
-                      <div className="flex items-center gap-4">
-                        <Trophy className="w-5 h-5 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">
-                            {match.homeTeamName || "チーム名なし"} vs {match.awayTeamName || "対戦相手"}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {new Date(match.createdAt).toLocaleDateString('ja-JP')}
-                          </div>
+                  <div key={match.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent transition-colors">
+                    <div className="flex items-center gap-4">
+                      <Trophy className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <div className="font-medium">
+                          {match.homeTeamName || "チーム名なし"} vs {match.awayTeamName || "対戦相手"}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {match.date ? new Date(match.date).toLocaleDateString('ja-JP') : "日付不明"}
+                          {match.venue ? ` | ${match.venue}` : ""}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          <Badge variant="outline" className="mr-2">{match.matchCode}</Badge>
+                          <Badge variant={match.status === "completed" ? "default" : match.status === "inProgress" ? "destructive" : "secondary"}>
+                            {match.status === "completed" ? "終了" : match.status === "inProgress" ? "試合中" : "準備中"}
+                          </Badge>
                         </div>
                       </div>
-                      <Badge variant="outline">{match.matchCode}</Badge>
                     </div>
-                  </Link>
+                    <div className="flex gap-2">
+                      <Link href={`/input/${match.id}`}>
+                        <Button size="sm" variant="outline" className="text-xs">
+                          <ClipboardEdit className="w-3 h-3 mr-1" />
+                          データ入力
+                        </Button>
+                      </Link>
+                      <Link href={`/coach/${match.id}`}>
+                        <Button size="sm" variant="outline" className="text-xs">
+                          <Monitor className="w-3 h-3 mr-1" />
+                          コーチ画面
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 ))}
               </div>
             </CardContent>
