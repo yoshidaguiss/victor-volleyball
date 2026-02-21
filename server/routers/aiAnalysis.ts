@@ -50,11 +50,11 @@ export const aiAnalysisRouter = router({
 
       // チーム情報を取得
       const homeTeam = match.homeTeamId ? await db.getTeamById(match.homeTeamId) : null;
-      const awayTeam = match.awayTeamId ? await db.getTeamById(match.awayTeamId) : null;
+      const awayTeam = null; // awayTeamIdはスキーマにないため
 
       // 選手情報を取得
       const homePlayers = match.homeTeamId && match.homeTeamId > 0 ? await db.getPlayersByTeamId(match.homeTeamId) : [];
-      const awayPlayers = match.awayTeamId && match.awayTeamId > 0 ? await db.getPlayersByTeamId(match.awayTeamId) : [];
+      const awayPlayers: any[] = []; // awayTeamIdはスキーマにないため、プレーデータから抽出
 
       // 試合状況を分析
       const analysisPrompt = buildAnalysisPrompt(match, plays, homeTeam, awayTeam, homePlayers, awayPlayers);

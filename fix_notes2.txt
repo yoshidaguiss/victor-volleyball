@@ -1,0 +1,38 @@
+CoachView.tsx の .map 呼び出し一覧と安全性チェック:
+
+LINE 165: scoreHome.map - ✅ 前の行でArray.isArray()チェック済み
+LINE 213: (homePlayers || []).map - ✅ 安全
+LINE 315: match.scoreHome.map - ✅ Array.isArray()でガード
+LINE 327: match.scoreAway.map - ✅ Array.isArray()でガード
+LINE 479: homePlayers?.map - ⚠️ オプショナルチェイニングだが、初回レンダリング時にundefinedの可能性
+LINE 537: awayPlayers?.map - ⚠️ 同上
+LINE 743: filteredPlays.map - ✅ 前で定義されたローカル変数
+LINE 830: ["1","2","3","4","5"].map - ✅ リテラル配列
+LINE 873: positionStats.map - ✅ ローカル変数
+LINE 897: positionStats.map - ✅ ローカル変数
+LINE 932: tacticalSuggestions.map - ⚠️ tacticalSuggestionsがundefinedの可能性
+LINE 991: (homePlayers || []).map - ✅ 安全
+LINE 1001: (awayPlayers || []).map - ✅ 安全
+LINE 1032: homeContributions.map - ✅ ローカル変数
+LINE 1055: homeContributions.map - ✅ ローカル変数
+LINE 1095: awayContributions.map - ✅ ローカル変数
+LINE 1118: awayContributions.map - ✅ ローカル変数
+LINE 1164: Object.keys(setGroups).map - ✅ ローカル変数
+LINE 1168: setNumbers.map - ✅ ローカル変数
+LINE 1174: setPlays.map - ✅ ローカル変数
+LINE 1339: turningPoints.map - ⚠️ turningPointsがundefinedの可能性
+LINE 1373: (homePlayers || []).map - ✅ 安全
+LINE 1405: (awayPlayers || []).map - ✅ 安全
+
+問題の可能性が高い箇所:
+- LINE 479: homePlayers?.map → データ読み込み中にundefined
+- LINE 537: awayPlayers?.map → データ読み込み中にundefined
+- LINE 932: tacticalSuggestions.map
+- LINE 1339: turningPoints.map
+
+ただし、?.mapはundefinedの場合undefinedを返すだけでクラッシュしない。
+本当の問題はもっと根本的なところにある可能性がある。
+
+エラーの行番号 575:82898 から、minified JSの特定の位置。
+コンポーネントの初期レンダリング時にmatchデータがまだ読み込まれていない状態で
+match.scoreHome等にアクセスしている可能性がある。

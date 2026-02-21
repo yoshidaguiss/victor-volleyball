@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -75,15 +75,22 @@ export default function DataInput() {
     { enabled: !!match?.homeTeamId }
   );
 
-  const { data: awayPlayers } = trpc.players.listByTeam.useQuery(
-    { teamId: match?.awayTeamId || 0 },
-    { enabled: !!match?.awayTeamId }
-  );
-
   const { data: recentPlays, refetch: refetchPlays } = trpc.plays.listByMatch.useQuery(
     { matchId: Number(matchId) || 0 },
     { enabled: !!matchId, refetchInterval: 3000 }
   );
+
+  // アウェイチームの選手はプレーデータから抽出（awayTeamIdがスキーマにないため）
+  const awayPlayers = useMemo(() => {
+    if (!recentPlays) return [];
+    const awayPlayerMap = new Map<number, { id: number; number: number; name: string }>();
+    recentPlays.filter((p: any) => p.teamSide === "away").forEach((p: any) => {
+      if (!awayPlayerMap.has(p.playerId)) {
+        awayPlayerMap.set(p.playerId, { id: p.playerId, number: p.playerNumber, name: p.playerName });
+      }
+    });
+    return Array.from(awayPlayerMap.values());
+  }, [recentPlays]);
 
   // プレー作成
   const createPlay = trpc.plays.create.useMutation({
@@ -419,7 +426,7 @@ export default function DataInput() {
                 variant="outline" 
                 size="sm"
                 onClick={() => {
-                  const teamId = currentTeamSide === "home" ? match.homeTeamId : match.awayTeamId;
+                  const teamId = currentTeamSide === "home" ? match.homeTeamId : 0;
                   setSubstitutionTeamId(teamId);
                   setShowSubstitutionDialog(true);
                 }}

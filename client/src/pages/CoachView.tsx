@@ -31,10 +31,17 @@ export default function CoachView() {
     { teamId: match?.homeTeamId || 0 },
     { enabled: !!match }
   );
-  const { data: awayPlayers } = trpc.players.listByTeam.useQuery(
-    { teamId: match?.awayTeamId || 0 },
-    { enabled: !!match }
-  );
+  // アウェイチームの選手はプレーデータから抽出（awayTeamIdがスキーマにないため）
+  const awayPlayers = useMemo(() => {
+    if (!plays) return [];
+    const awayPlayerMap = new Map<number, { id: number; number: number; name: string }>();
+    plays.filter((p: any) => p.teamSide === "away").forEach((p: any) => {
+      if (!awayPlayerMap.has(p.playerId)) {
+        awayPlayerMap.set(p.playerId, { id: p.playerId, number: p.playerNumber, name: p.playerName });
+      }
+    });
+    return Array.from(awayPlayerMap.values());
+  }, [plays]);
 
   const handleExportExcel = () => {
     if (!match) {
@@ -476,7 +483,7 @@ export default function CoachView() {
                       </tr>
                     </thead>
                     <tbody>
-                      {homePlayers?.map((player: any) => {
+                      {(homePlayers || []).map((player: any) => {
                         const stats = calculatePlayerStats(player.id, "home");
                         if (!stats) return null;
                         return (
@@ -534,7 +541,7 @@ export default function CoachView() {
                       </tr>
                     </thead>
                     <tbody>
-                      {awayPlayers?.map((player: any) => {
+                      {(awayPlayers || []).map((player: any) => {
                         const stats = calculatePlayerStats(player.id, "away");
                         if (!stats) return null;
                         return (
