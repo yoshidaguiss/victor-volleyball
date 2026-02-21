@@ -267,6 +267,7 @@ export const appRouter = router({
         const playId = await db.createPlay({
           matchId: input.matchId,
           rallyId: 0,
+          setNumber: input.setNumber,
           playType: input.playType,
           teamSide: input.teamSide,
           playerId: input.playerId,

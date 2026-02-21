@@ -134,6 +134,7 @@ export const plays = pgTable("plays", {
   id: serial("id").primaryKey(),
   matchId: integer("matchId").notNull(),
   rallyId: integer("rallyId").notNull(),
+  setNumber: integer("setNumber").default(1).notNull(),
   timestamp: timestamp("timestamp").notNull(),
   playType: playTypeEnum("playType").notNull(),
   teamSide: teamSideEnum("teamSide").notNull(),
