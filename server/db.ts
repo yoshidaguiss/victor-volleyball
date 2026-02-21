@@ -1,5 +1,5 @@
 import { eq, desc, and } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/node-postgres";
 import { users, teams, players, matches, rallies, plays, aiAnalyses, substitutions, timeouts, serveOrders } from "../drizzle/schema";
 import type { User, InsertUser, Team, InsertTeam, Player, InsertPlayer, Match, InsertMatch, Rally, InsertRally, Play, InsertPlay, AIAnalysis, InsertAIAnalysis, Substitution, InsertSubstitution, Timeout, InsertTimeout, ServeOrder, InsertServeOrder } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -32,47 +32,33 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
 
   try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
-    const updateSet: Record<string, unknown> = {};
-
-    const textFields = ["name", "email", "loginMethod"] as const;
-    type TextField = (typeof textFields)[number];
-
-    const assignNullable = (field: TextField) => {
-      const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
-    };
-
-    textFields.forEach(assignNullable);
-
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
+    const existing = await db.select().from(users).where(eq(users.openId, user.openId)).limit(1);
+    
+    if (existing.length > 0) {
+      const updateSet: Record<string, unknown> = {};
+      if (user.name !== undefined) updateSet.name = user.name ?? null;
+      if (user.email !== undefined) updateSet.email = user.email ?? null;
+      if (user.loginMethod !== undefined) updateSet.loginMethod = user.loginMethod ?? null;
+      if (user.lastSignedIn !== undefined) updateSet.lastSignedIn = user.lastSignedIn;
+      if (user.role !== undefined) updateSet.role = user.role;
+      
+      if (Object.keys(updateSet).length === 0) {
+        updateSet.lastSignedIn = new Date();
+      }
+      updateSet.updatedAt = new Date();
+      
+      await db.update(users).set(updateSet).where(eq(users.openId, user.openId));
+    } else {
+      const values: InsertUser = {
+        openId: user.openId,
+        name: user.name ?? null,
+        email: user.email ?? null,
+        loginMethod: user.loginMethod ?? null,
+        lastSignedIn: user.lastSignedIn ?? new Date(),
+        role: user.role ?? (user.openId === ENV.ownerOpenId ? 'admin' : 'user'),
+      };
+      await db.insert(users).values(values);
     }
-    if (user.role !== undefined) {
-      values.role = user.role;
-      updateSet.role = user.role;
-    } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
-    }
-
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
-    }
-
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -96,8 +82,8 @@ export async function createTeam(teamData: InsertTeam) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(teams).values(teamData);
-  return result[0].insertId;
+  const result = await db.insert(teams).values(teamData).returning({ id: teams.id });
+  return result[0].id;
 }
 
 export async function getTeamsByUserId(userId: number) {
@@ -123,8 +109,8 @@ export async function createPlayer(playerData: InsertPlayer) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(players).values(playerData);
-  return result[0].insertId;
+  const result = await db.insert(players).values(playerData).returning({ id: players.id });
+  return result[0].id;
 }
 
 export async function getPlayersByTeamId(teamId: number) {
@@ -161,8 +147,8 @@ export async function createMatch(matchData: InsertMatch) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(matches).values(matchData);
-  return result[0].insertId;
+  const result = await db.insert(matches).values(matchData).returning({ id: matches.id });
+  return result[0].id;
 }
 
 export async function getMatchByCode(matchCode: string) {
@@ -192,7 +178,8 @@ export async function getMatchesByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
   
-  return await db.select().from(matches).where(eq(matches.userId, userId)).orderBy(desc(matches.date));
+  // Return all matches since we removed authentication
+  return await db.select().from(matches).orderBy(desc(matches.date));
 }
 
 // Rally operations
@@ -200,8 +187,8 @@ export async function createRally(rallyData: InsertRally) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(rallies).values(rallyData);
-  return result[0].insertId;
+  const result = await db.insert(rallies).values(rallyData).returning({ id: rallies.id });
+  return result[0].id;
 }
 
 export async function getRalliesByMatch(matchId: number, setNumber?: number) {
@@ -227,8 +214,8 @@ export async function createPlay(playData: InsertPlay) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(plays).values(playData);
-  return result[0].insertId;
+  const result = await db.insert(plays).values(playData).returning({ id: plays.id });
+  return result[0].id;
 }
 
 export async function getPlaysByRally(rallyId: number) {
@@ -257,8 +244,8 @@ export async function createAIAnalysis(analysisData: InsertAIAnalysis) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(aiAnalyses).values(analysisData);
-  return result[0].insertId;
+  const result = await db.insert(aiAnalyses).values(analysisData).returning({ id: aiAnalyses.id });
+  return result[0].id;
 }
 
 export async function getAIAnalysesByMatch(matchId: number) {
@@ -280,8 +267,8 @@ export async function createSubstitution(substitutionData: InsertSubstitution) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(substitutions).values(substitutionData);
-  return result[0].insertId;
+  const result = await db.insert(substitutions).values(substitutionData).returning({ id: substitutions.id });
+  return result[0].id;
 }
 
 export async function getSubstitutionsByMatch(matchId: number, setNumber?: number) {
@@ -304,8 +291,8 @@ export async function createTimeout(timeoutData: InsertTimeout) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(timeouts).values(timeoutData);
-  return result[0].insertId;
+  const result = await db.insert(timeouts).values(timeoutData).returning({ id: timeouts.id });
+  return result[0].id;
 }
 
 export async function getTimeoutsByMatch(matchId: number, setNumber?: number) {
@@ -328,8 +315,8 @@ export async function createServeOrder(serveOrderData: InsertServeOrder) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(serveOrders).values(serveOrderData);
-  return result[0].insertId;
+  const result = await db.insert(serveOrders).values(serveOrderData).returning({ id: serveOrders.id });
+  return result[0].id;
 }
 
 export async function getServeOrdersByMatch(matchId: number, setNumber: number, teamSide: "home" | "away") {

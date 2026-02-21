@@ -1,17 +1,29 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, json, boolean, float, index, uniqueIndex } from "drizzle-orm/mysql-core";
+import { integer, pgEnum, pgTable, text, timestamp, varchar, json, boolean, real, serial } from "drizzle-orm/pg-core";
+
+/**
+ * Enums for PostgreSQL
+ */
+export const roleEnum = pgEnum("role", ["user", "admin"]);
+export const positionEnum = pgEnum("position", ["S", "MB", "WS", "OP", "L"]);
+export const matchStatusEnum = pgEnum("match_status", ["preparing", "inProgress", "completed"]);
+export const winnerEnum = pgEnum("winner", ["home", "away"]);
+export const playTypeEnum = pgEnum("play_type", ["serve", "receive", "set", "attack", "block", "dig"]);
+export const teamSideEnum = pgEnum("team_side", ["home", "away"]);
+export const resultEnum = pgEnum("result", ["point", "continue", "error"]);
+export const timeoutTypeEnum = pgEnum("timeout_type", ["technical", "regular"]);
 
 /**
  * Core user table backing auth flow.
  */
-export const users = mysqlTable("users", {
-  id: int("id").autoincrement().primaryKey(),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: roleEnum("role").default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
@@ -21,15 +33,15 @@ export type InsertUser = typeof users.$inferInsert;
 /**
  * API Keys table for user-specific API key management
  */
-export const apiKeys = mysqlTable("apiKeys", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
-  provider: varchar("provider", { length: 50 }).notNull(), // "gemini", "openai", etc.
+export const apiKeys = pgTable("apiKeys", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull(),
+  provider: varchar("provider", { length: 50 }).notNull(),
   encryptedKey: text("encryptedKey").notNull(),
-  usageCount: int("usageCount").default(0).notNull(),
+  usageCount: integer("usageCount").default(0).notNull(),
   lastUsedAt: timestamp("lastUsedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 export type ApiKey = typeof apiKeys.$inferSelect;
@@ -38,12 +50,12 @@ export type InsertApiKey = typeof apiKeys.$inferInsert;
 /**
  * Teams table
  */
-export const teams = mysqlTable("teams", {
-  id: int("id").autoincrement().primaryKey(),
+export const teams = pgTable("teams", {
+  id: serial("id").primaryKey(),
   teamName: varchar("teamName", { length: 255 }).notNull(),
   season: varchar("season", { length: 50 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 export type Team = typeof teams.$inferSelect;
@@ -52,12 +64,12 @@ export type InsertTeam = typeof teams.$inferInsert;
 /**
  * Players table
  */
-export const players = mysqlTable("players", {
-  id: int("id").autoincrement().primaryKey(),
-  teamId: int("teamId").notNull(),
-  number: int("number").notNull(),
+export const players = pgTable("players", {
+  id: serial("id").primaryKey(),
+  teamId: integer("teamId").notNull(),
+  number: integer("number").notNull(),
   name: varchar("name", { length: 255 }).notNull(),
-  position: mysqlEnum("position", ["S", "MB", "WS", "OP", "L"]).notNull(),
+  position: positionEnum("position").notNull(),
   isLibero: boolean("isLibero").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
@@ -68,24 +80,24 @@ export type InsertPlayer = typeof players.$inferInsert;
 /**
  * Matches table
  */
-export const matches = mysqlTable("matches", {
-  id: int("id").autoincrement().primaryKey(),
+export const matches = pgTable("matches", {
+  id: serial("id").primaryKey(),
   matchCode: varchar("matchCode", { length: 8 }).notNull().unique(),
   date: timestamp("date").notNull(),
   venue: varchar("venue", { length: 255 }),
-  homeTeamId: int("homeTeamId").notNull(),
+  homeTeamId: integer("homeTeamId").notNull(),
   homeTeamName: varchar("homeTeamName", { length: 255 }).notNull(),
   awayTeamName: varchar("awayTeamName", { length: 255 }).notNull(),
-  sets: int("sets").default(5).notNull(),
+  sets: integer("sets").default(5).notNull(),
   isPracticeMatch: boolean("isPracticeMatch").default(false).notNull(),
-  status: mysqlEnum("status", ["preparing", "inProgress", "completed"]).default("preparing").notNull(),
-  currentSet: int("currentSet").default(1).notNull(),
+  status: matchStatusEnum("status").default("preparing").notNull(),
+  currentSet: integer("currentSet").default(1).notNull(),
   scoreHome: json("scoreHome").$type<number[]>(),
   scoreAway: json("scoreAway").$type<number[]>(),
-  timeoutsHome: int("timeoutsHome").default(0).notNull(),
-  timeoutsAway: int("timeoutsAway").default(0).notNull(),
+  timeoutsHome: integer("timeoutsHome").default(0).notNull(),
+  timeoutsAway: integer("timeoutsAway").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 export type Match = typeof matches.$inferSelect;
@@ -94,22 +106,22 @@ export type InsertMatch = typeof matches.$inferInsert;
 /**
  * Rallies table
  */
-export const rallies = mysqlTable("rallies", {
-  id: int("id").autoincrement().primaryKey(),
-  matchId: int("matchId").notNull(),
-  setNumber: int("setNumber").notNull(),
-  rallyNumber: int("rallyNumber").notNull(),
+export const rallies = pgTable("rallies", {
+  id: serial("id").primaryKey(),
+  matchId: integer("matchId").notNull(),
+  setNumber: integer("setNumber").notNull(),
+  rallyNumber: integer("rallyNumber").notNull(),
   startTime: timestamp("startTime").notNull(),
   endTime: timestamp("endTime"),
-  homeScoreBefore: int("homeScoreBefore").default(0).notNull(),
-  awayScoreBefore: int("awayScoreBefore").default(0).notNull(),
-  homeScoreAfter: int("homeScoreAfter").default(0).notNull(),
-  awayScoreAfter: int("awayScoreAfter").default(0).notNull(),
-  winner: mysqlEnum("winner", ["home", "away"]),
-  duration: int("duration"),
-  playCount: int("playCount").default(0).notNull(), // ラリー内のプレー数
-  playSequence: json("playSequence").$type<string[]>(), // プレータイプの連鎖 ["serve", "receive", "set", "attack"]
-  endPattern: varchar("endPattern", { length: 50 }), // ラリー終了パターン ("attack_kill", "serve_ace", "error", etc.)
+  homeScoreBefore: integer("homeScoreBefore").default(0).notNull(),
+  awayScoreBefore: integer("awayScoreBefore").default(0).notNull(),
+  homeScoreAfter: integer("homeScoreAfter").default(0).notNull(),
+  awayScoreAfter: integer("awayScoreAfter").default(0).notNull(),
+  winner: winnerEnum("winner"),
+  duration: integer("duration"),
+  playCount: integer("playCount").default(0).notNull(),
+  playSequence: json("playSequence").$type<string[]>(),
+  endPattern: varchar("endPattern", { length: 50 }),
 });
 
 export type Rally = typeof rallies.$inferSelect;
@@ -118,18 +130,18 @@ export type InsertRally = typeof rallies.$inferInsert;
 /**
  * Plays table
  */
-export const plays = mysqlTable("plays", {
-  id: int("id").autoincrement().primaryKey(),
-  matchId: int("matchId").notNull(),
-  rallyId: int("rallyId").notNull(),
+export const plays = pgTable("plays", {
+  id: serial("id").primaryKey(),
+  matchId: integer("matchId").notNull(),
+  rallyId: integer("rallyId").notNull(),
   timestamp: timestamp("timestamp").notNull(),
-  playType: mysqlEnum("playType", ["serve", "receive", "set", "attack", "block", "dig"]).notNull(),
-  teamSide: mysqlEnum("teamSide", ["home", "away"]).notNull(),
-  playerId: int("playerId").notNull(),
-  playerNumber: int("playerNumber").notNull(),
+  playType: playTypeEnum("playType").notNull(),
+  teamSide: teamSideEnum("teamSide").notNull(),
+  playerId: integer("playerId").notNull(),
+  playerNumber: integer("playerNumber").notNull(),
   playerName: varchar("playerName", { length: 255 }).notNull(),
-  positionX: float("positionX").notNull(),
-  positionY: float("positionY").notNull(),
+  positionX: real("positionX").notNull(),
+  positionY: real("positionY").notNull(),
   details: json("details").$type<{
     serveType?: "jump" | "float";
     serveResult?: "ace" | "in" | "net" | "out" | "error";
@@ -141,7 +153,7 @@ export const plays = mysqlTable("plays", {
     blockCount?: 1 | 2 | 3;
     blockResult?: "stuff" | "touch" | "none";
   }>(),
-  result: mysqlEnum("result", ["point", "continue", "error"]).notNull(),
+  result: resultEnum("result").notNull(),
 });
 
 export type Play = typeof plays.$inferSelect;
@@ -150,15 +162,15 @@ export type InsertPlay = typeof plays.$inferInsert;
 /**
  * AI Analyses table
  */
-export const aiAnalyses = mysqlTable("aiAnalyses", {
-  id: int("id").autoincrement().primaryKey(),
-  matchId: int("matchId").notNull(),
+export const aiAnalyses = pgTable("aiAnalyses", {
+  id: serial("id").primaryKey(),
+  matchId: integer("matchId").notNull(),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
   scope: text("scope").notNull(),
   model: varchar("model", { length: 100 }).default("gemini-pro").notNull(),
   prompt: text("prompt").notNull(),
   response: text("response").notNull(),
-  userId: int("userId"),
+  userId: integer("userId"),
 });
 
 export type AIAnalysis = typeof aiAnalyses.$inferSelect;
@@ -167,17 +179,17 @@ export type InsertAIAnalysis = typeof aiAnalyses.$inferInsert;
 /**
  * Substitutions table - 選手交代記録
  */
-export const substitutions = mysqlTable("substitutions", {
-  id: int("id").autoincrement().primaryKey(),
-  matchId: int("matchId").notNull(),
-  setNumber: int("setNumber").notNull(),
+export const substitutions = pgTable("substitutions", {
+  id: serial("id").primaryKey(),
+  matchId: integer("matchId").notNull(),
+  setNumber: integer("setNumber").notNull(),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
-  teamSide: mysqlEnum("teamSide", ["home", "away"]).notNull(),
-  playerOutId: int("playerOutId").notNull(),
-  playerOutNumber: int("playerOutNumber").notNull(),
+  teamSide: teamSideEnum("teamSide").notNull(),
+  playerOutId: integer("playerOutId").notNull(),
+  playerOutNumber: integer("playerOutNumber").notNull(),
   playerOutName: varchar("playerOutName", { length: 255 }).notNull(),
-  playerInId: int("playerInId").notNull(),
-  playerInNumber: int("playerInNumber").notNull(),
+  playerInId: integer("playerInId").notNull(),
+  playerInNumber: integer("playerInNumber").notNull(),
   playerInName: varchar("playerInName", { length: 255 }).notNull(),
   isLibero: boolean("isLibero").default(false).notNull(),
 });
@@ -188,16 +200,16 @@ export type InsertSubstitution = typeof substitutions.$inferInsert;
 /**
  * Timeouts table - タイムアウト記録
  */
-export const timeouts = mysqlTable("timeouts", {
-  id: int("id").autoincrement().primaryKey(),
-  matchId: int("matchId").notNull(),
-  setNumber: int("setNumber").notNull(),
+export const timeouts = pgTable("timeouts", {
+  id: serial("id").primaryKey(),
+  matchId: integer("matchId").notNull(),
+  setNumber: integer("setNumber").notNull(),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
-  teamSide: mysqlEnum("teamSide", ["home", "away"]).notNull(),
-  homeScore: int("homeScore").notNull(),
-  awayScore: int("awayScore").notNull(),
-  duration: int("duration"),
-  type: mysqlEnum("type", ["technical", "regular"]).default("regular").notNull(),
+  teamSide: teamSideEnum("teamSide").notNull(),
+  homeScore: integer("homeScore").notNull(),
+  awayScore: integer("awayScore").notNull(),
+  duration: integer("duration"),
+  type: timeoutTypeEnum("type").default("regular").notNull(),
 });
 
 export type Timeout = typeof timeouts.$inferSelect;
@@ -206,14 +218,14 @@ export type InsertTimeout = typeof timeouts.$inferInsert;
 /**
  * Serve Orders table - サーブ順管理
  */
-export const serveOrders = mysqlTable("serveOrders", {
-  id: int("id").autoincrement().primaryKey(),
-  matchId: int("matchId").notNull(),
-  setNumber: int("setNumber").notNull(),
-  teamSide: mysqlEnum("teamSide", ["home", "away"]).notNull(),
-  position: int("position").notNull(), // 1-6
-  playerId: int("playerId").notNull(),
-  playerNumber: int("playerNumber").notNull(),
+export const serveOrders = pgTable("serveOrders", {
+  id: serial("id").primaryKey(),
+  matchId: integer("matchId").notNull(),
+  setNumber: integer("setNumber").notNull(),
+  teamSide: teamSideEnum("teamSide").notNull(),
+  position: integer("position").notNull(),
+  playerId: integer("playerId").notNull(),
+  playerNumber: integer("playerNumber").notNull(),
   playerName: varchar("playerName", { length: 255 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

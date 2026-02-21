@@ -1,0 +1,50 @@
+2026-02-21T12:07:18.565428671Z     at async mysqlPush (/opt/render/project/src/node_modules/.pnpm/drizzle-kit@0.31.5/node_modules/drizzle-kit/bin.cjs:84165:32)
+2026-02-21T12:07:18.565434071Z     at async Object.handler (/opt/render/project/src/node_modules/.pnpm/drizzle-kit@0.31.5/node_modules/drizzle-kit/bin.cjs:93824:9)
+2026-02-21T12:07:18.565438562Z     at async run (/opt/render/project/src/node_modules/.pnpm/drizzle-kit@0.31.5/node_modules/drizzle-kit/bin.cjs:93101:7) {
+2026-02-21T12:07:18.565443012Z   code: 'ECONNREFUSED',
+2026-02-21T12:07:18.565447482Z   errno: -111,
+2026-02-21T12:07:18.565452132Z   sqlState: undefined
+2026-02-21T12:07:18.565456242Z }
+2026-02-21T12:07:24.156171396Z 
+2026-02-21T12:07:24.156198227Z > volleyball-analyzer@1.0.0 start /opt/render/project/src
+2026-02-21T12:07:24.156208867Z > NODE_ENV=production node dist/index.js
+2026-02-21T12:07:24.156214257Z 
+2026-02-21T12:07:30.743965118Z ==> No open ports detected, continuing to scan...
+2026-02-21T12:07:31.16168555Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+2026-02-21T12:07:36.958258276Z [OAuth] Initialized with baseURL: 
+2026-02-21T12:07:36.958582082Z [OAuth] ERROR: OAUTH_SERVER_URL is not configured! Set OAUTH_SERVER_URL environment variable.
+2026-02-21T12:07:37.160603234Z Server running on http://localhost:10000/
+2026-02-21T12:07:46.490043473Z ==> Your service is live 🎉
+2026-02-21T12:07:46.742700038Z ==> 
+2026-02-21T12:07:46.746278558Z ==> ///////////////////////////////////////////////////////////
+2026-02-21T12:07:46.748689146Z ==> 
+2026-02-21T12:07:46.751462683Z ==> Available at your primary URL https://victor-volleyball.onrender.com
+2026-02-21T12:07:46.753580975Z ==> 
+2026-02-21T12:07:46.755907709Z ==> ///////////////////////////////////////////////////////////
+2026-02-21T12:09:06.118051344Z [Auth] Missing session cookie
+2026-02-21T12:09:07.995025378Z [Auth] Missing session cookie
+2026-02-21T12:09:09.193085831Z [Auth] Missing session cookie
+2026-02-21T12:09:11.384126637Z [Auth] Missing session cookie
+2026-02-21T12:09:12.446818506Z [Auth] Missing session cookie
+2026-02-21T12:09:14.301542436Z [Auth] Missing session cookie
+2026-02-21T12:09:15.574352851Z [Auth] Missing session cookie
+2026-02-21T12:09:16.132656318Z [Auth] Missing session cookie
+2026-02-21T12:09:17.265774286Z [Auth] Missing session cookie
+2026-02-21T12:09:19.442430708Z [Auth] Missing session cookie
+2026-02-21T12:09:19.71807165Z [Auth] Missing session cookie
+2026-02-21T12:09:36.167380692Z [Auth] Missing session cookie
+2026-02-21T12:09:37.297408972Z [Auth] Missing session cookie
+2026-02-21T12:09:37.855095287Z [Auth] Missing session cookie
+2026-02-21T12:09:38.976041144Z [Auth] Missing session cookie
+2026-02-21T12:09:41.046514248Z [Auth] Missing session cookie
+2026-02-21T12:09:41.204355859Z [Auth] Missing session cookie
+2026-02-21T12:09:45.489954207Z [Auth] Missing session cookie
+2026-02-21T12:10:06.953430225Z [Auth] Missing session cookie
+2026-02-21T12:10:08.139424188Z [Auth] Missing session cookie
+2026-02-21T12:10:08.672858333Z [Auth] Missing session cookie
+2026-02-21T12:10:09.810382305Z [Auth] Missing session cookie
+2026-02-21T12:10:12.048062848Z [Auth] Missing session cookie
+2026-02-21T12:10:12.816086195Z [Auth] Missing session cookie
+2026-02-21T12:10:16.298622782Z [Auth] Missing session cookie
+2026-02-21T12:12:44.642808526Z ==> Detected service running on port 10000
+2026-02-21T12:12:45.06668263Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
