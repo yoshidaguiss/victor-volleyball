@@ -25,8 +25,7 @@ export default function MatchSetup() {
   const [matchCode, setMatchCode] = useState("");
   const [createdMatch, setCreatedMatch] = useState<{ matchId: number; matchCode: string } | null>(null);
   
-  const { data: user } = trpc.auth.me.useQuery();
-  const { data: teams } = trpc.teams.list.useQuery(undefined, { enabled: !!user?.id });
+  const { data: teams } = trpc.teams.list.useQuery();
 
   const createMatchMutation = trpc.matches.create.useMutation({
     onSuccess: (data) => {

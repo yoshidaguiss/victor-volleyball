@@ -12,15 +12,12 @@ import { trpc as trpcClient } from "@/lib/trpc";
 
 export default function Teams() {
   const [, navigate] = useLocation();
-  const { data: user } = trpcClient.auth.me.useQuery();
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [teamName, setTeamName] = useState("");
   const [season, setSeason] = useState("");
 
-  const { data: teams, refetch } = trpc.teams.list.useQuery(
-    undefined,
-    { enabled: !!user?.id }
-  );
+  const { data: teams, refetch } = trpc.teams.list.useQuery();
 
   const createTeam = trpc.teams.create.useMutation({
     onSuccess: () => {
@@ -40,11 +37,6 @@ export default function Teams() {
   const handleCreateTeam = () => {
     if (!teamName.trim()) {
       toast.error("チーム名を入力してください");
-      return;
-    }
-
-    if (!user?.id) {
-      toast.error("ログインが必要です");
       return;
     }
 
