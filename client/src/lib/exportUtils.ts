@@ -11,7 +11,9 @@ export function exportMatchToExcel(matchData: any, plays: any[]) {
     ["会場", matchData.venue || "-"],
     ["ホームチーム", matchData.homeTeamName],
     ["アウェイチーム", matchData.awayTeamName],
-    ["最終スコア", `${matchData.homeScore} - ${matchData.awayScore}`],
+    ["最終スコア", `${(matchData.scoreHome || []).reduce((a: number, b: number) => a + b, 0)} - ${(matchData.scoreAway || []).reduce((a: number, b: number) => a + b, 0)}`],
+    ["セットスコア(H)", (matchData.scoreHome || []).join(", ") || "-"],
+    ["セットスコア(A)", (matchData.scoreAway || []).join(", ") || "-"],
   ];
   const ws1 = XLSX.utils.aoa_to_sheet(matchInfo);
   XLSX.utils.book_append_sheet(wb, ws1, "試合情報");
@@ -19,10 +21,11 @@ export function exportMatchToExcel(matchData: any, plays: any[]) {
   // プレー記録シート
   if (plays && plays.length > 0) {
     const playsData = plays.map((play: any) => ({
+      セット: play.setNumber || 1,
       時刻: new Date(play.timestamp).toLocaleTimeString("ja-JP"),
       チーム: play.teamSide === "home" ? matchData.homeTeamName : matchData.awayTeamName,
-      選手番号: play.playerNumber,
-      選手名: play.playerName,
+      選手番号: play.playerNumber || "-",
+      選手名: play.playerName || "-",
       プレータイプ: play.playType,
       結果: play.result,
       X座標: play.positionX,

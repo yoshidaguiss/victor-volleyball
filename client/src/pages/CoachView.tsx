@@ -21,15 +21,15 @@ export default function CoachView() {
 
   const { data: match, isLoading: matchLoading } = trpc.matches.getById.useQuery(
     { matchId },
-    { refetchInterval: 3000 }
+    { enabled: !!matchId }
   );
   const { data: plays, isLoading: playsLoading } = trpc.plays.listByMatch.useQuery(
     { matchId },
-    { refetchInterval: 3000, enabled: !!matchId }
+    { enabled: !!matchId }
   );
   const { data: homePlayers } = trpc.players.listByTeam.useQuery(
     { teamId: match?.homeTeamId || 0 },
-    { enabled: !!match }
+    { enabled: !!match && !!match.homeTeamId }
   );
   // アウェイチームの選手はプレーデータから抽出（awayTeamIdがスキーマにないため）
   const awayPlayers = useMemo(() => {
@@ -254,7 +254,8 @@ export default function CoachView() {
     return suggestions;
   }, [plays, homePlayers, awayPlayers]);
 
-  if (matchLoading || playsLoading) {
+  // 初回読み込み時のみローディング表示（データが既にある場合は表示を維持）
+  if ((matchLoading && !match) || (playsLoading && !plays)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
         <p className="text-lg text-gray-600">読み込み中...</p>
