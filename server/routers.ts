@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { apiKeysRouter } from "./routers/apiKeys";
@@ -37,7 +37,7 @@ export const appRouter = router({
 
   // チーム管理
   teams: router({
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         teamName: z.string(),
         season: z.string().optional(),
@@ -46,16 +46,16 @@ export const appRouter = router({
         const teamId = await db.createTeam({
           teamName: input.teamName,
           season: input.season,
-          userId: ctx.user.id,
+          userId: ctx.user?.id || 0,
         });
         return { teamId };
       }),
 
-    list: protectedProcedure.query(async ({ ctx }) => {
-      return await db.getTeamsByUserId(ctx.user.id);
+    list: publicProcedure.query(async ({ ctx }) => {
+      return await db.getTeamsByUserId(ctx.user?.id || 0);
     }),
 
-    getById: protectedProcedure
+    getById: publicProcedure
       .input(z.object({ teamId: z.number() }))
       .query(async ({ input }) => {
         return await db.getTeamById(input.teamId);
@@ -64,7 +64,7 @@ export const appRouter = router({
 
   // 選手管理
   players: router({
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         teamId: z.number(),
         number: z.number(),
@@ -77,7 +77,7 @@ export const appRouter = router({
         return { playerId };
       }),
 
-    listByTeam: protectedProcedure
+    listByTeam: publicProcedure
       .input(z.object({ teamId: z.number() }))
       .query(async ({ input }) => {
         return await db.getPlayersByTeamId(input.teamId);
@@ -89,7 +89,7 @@ export const appRouter = router({
         return await db.getPlayerById(input.playerId);
       }),
 
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         playerId: z.number(),
         number: z.number().optional(),
@@ -102,7 +102,7 @@ export const appRouter = router({
         return { success: true };
       }),
 
-    delete: protectedProcedure
+    delete: publicProcedure
       .input(z.object({ playerId: z.number() }))
       .mutation(async ({ input }) => {
         await db.deletePlayer(input.playerId);
@@ -112,7 +112,7 @@ export const appRouter = router({
 
   // 試合管理
   matches: router({
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         date: z.date(),
         venue: z.string().optional(),
@@ -133,7 +133,7 @@ export const appRouter = router({
           scoreAway: [],
           timeoutsHome: 0,
           timeoutsAway: 0,
-          userId: ctx.user.id,
+          userId: ctx.user?.id || 0,
         });
         return { matchId, matchCode };
       }),
@@ -156,7 +156,7 @@ export const appRouter = router({
         return await db.getRecentMatches(input.limit);
       }),
 
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         matchId: z.number(),
         status: z.enum(["preparing", "inProgress", "completed"]).optional(),
@@ -172,11 +172,11 @@ export const appRouter = router({
         return { success: true };
       }),
 
-    list: protectedProcedure.query(async ({ ctx }) => {
-      return await db.getMatchesByUserId(ctx.user.id);
+    list: publicProcedure.query(async ({ ctx }) => {
+      return await db.getMatchesByUserId(ctx.user?.id || 0);
     }),
 
-    nextSet: protectedProcedure
+    nextSet: publicProcedure
       .input(z.object({
         matchId: z.number(),
       }))
@@ -201,7 +201,7 @@ export const appRouter = router({
 
   // ラリー管理
   rallies: router({
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         matchId: z.number(),
         setNumber: z.number(),
@@ -219,7 +219,7 @@ export const appRouter = router({
         return { rallyId };
       }),
 
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         rallyId: z.number(),
         endTime: z.date().optional(),
@@ -252,7 +252,7 @@ export const appRouter = router({
   }),
 
   plays: router({
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         setNumber: z.number(),
         rallyNumber: z.number(),
@@ -361,7 +361,7 @@ export const appRouter = router({
 
   // AI分析
   aiAnalyses: router({
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         matchId: z.number(),
         scope: z.string(),
@@ -386,7 +386,7 @@ export const appRouter = router({
 
   // AI分析とPDF出力
   analysis: router({
-    generate: protectedProcedure
+    generate: publicProcedure
       .input(z.object({
         matchId: z.number(),
         scope: z.enum(["timeout", "set_end", "match_end"]),
@@ -408,7 +408,7 @@ export const appRouter = router({
         return { analysisId, analysis };
       }),
 
-    exportPDF: protectedProcedure
+    exportPDF: publicProcedure
       .input(z.object({ matchId: z.number() }))
       .mutation(async ({ input }) => {
         const { generateMatchReportPDF } = await import("./analysis");
@@ -442,7 +442,7 @@ export const appRouter = router({
 
   // 選手交代管理
   substitutions: router({
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         matchId: z.number(),
         setNumber: z.number(),
@@ -472,7 +472,7 @@ export const appRouter = router({
 
   // タイムアウト管理
   timeouts: router({
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         matchId: z.number(),
         setNumber: z.number(),
@@ -499,7 +499,7 @@ export const appRouter = router({
 
   // サーブ順管理
   serveOrders: router({
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         matchId: z.number(),
         setNumber: z.number(),
@@ -514,7 +514,7 @@ export const appRouter = router({
         return { serveOrderId };
       }),
 
-    createBatch: protectedProcedure
+    createBatch: publicProcedure
       .input(z.object({
         matchId: z.number(),
         setNumber: z.number(),
@@ -553,7 +553,7 @@ export const appRouter = router({
         return await db.getServeOrdersByMatch(input.matchId, input.setNumber, input.teamSide);
       }),
 
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         matchId: z.number(),
         setNumber: z.number(),
