@@ -4,8 +4,8 @@ services:
     env: node
     region: singapore
     plan: free
-    buildCommand: pnpm install && pnpm run db:push && pnpm run build
-    startCommand: pnpm run start
+    buildCommand: pnpm install && pnpm run build
+    startCommand: pnpm run migrate:run && pnpm run start
     envVars:
       - key: NODE_ENV
         value: production
