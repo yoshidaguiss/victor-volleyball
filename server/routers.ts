@@ -281,20 +281,23 @@ export const appRouter = router({
           timestamp: new Date(),
         });
 
-        // スコア更新：resultが"point"の場合、得点したチームのスコアを+1
-        if (input.result === "point") {
+        // スコア更新：resultが"point"なら自チーム、"error"なら相手チームに得点
+        if (input.result === "point" || input.result === "error") {
           const match = await db.getMatchById(input.matchId);
           if (match) {
             const scoreHome = match.scoreHome || [];
             const scoreAway = match.scoreAway || [];
-            const currentSet = match.currentSet - 1; // 0-indexed
+            const currentSet = (match.currentSet || 1) - 1; // 0-indexed
 
             // 現在のセットのスコアを初期化（必要な場合）
             while (scoreHome.length <= currentSet) scoreHome.push(0);
             while (scoreAway.length <= currentSet) scoreAway.push(0);
 
-            // 得点したチームのスコアを+1
-            if (input.teamSide === "home") {
+            // 得点チームの判定
+            // result="point"なら入力チーム、result="error"なら相手チーム
+            const scoringTeam = input.result === "point" ? input.teamSide : (input.teamSide === "home" ? "away" : "home");
+
+            if (scoringTeam === "home") {
               scoreHome[currentSet]++;
             } else {
               scoreAway[currentSet]++;
