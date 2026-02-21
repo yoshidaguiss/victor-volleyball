@@ -213,12 +213,16 @@ export default function DataInput() {
     }
 
     // その他はそのまま記録
+    const players = currentTeamSide === "home" ? homePlayers : awayPlayers;
+    const player = players?.find((p: any) => p.id === selectedPlayer);
     createPlay.mutate({
       matchId: Number(matchId),
       setNumber: match.currentSet,
       rallyNumber: (recentPlays?.length || 0) + 1,
       playType: action.playType,
       playerId: selectedPlayer,
+      playerNumber: player?.number || 0,
+      playerName: player?.name || "",
       result: action.result,
       teamSide: currentTeamSide,
       positionX: 0,
@@ -230,12 +234,16 @@ export default function DataInput() {
   const handleAttackDetailsConfirm = (details: any) => {
     if (!selectedPlayer || !match || !pendingAttackAction) return;
 
+    const players = currentTeamSide === "home" ? homePlayers : awayPlayers;
+    const player = players?.find((p: any) => p.id === selectedPlayer);
     createPlay.mutate({
       matchId: Number(matchId),
       setNumber: match.currentSet,
       rallyNumber: (recentPlays?.length || 0) + 1,
       playType: "attack",
       playerId: selectedPlayer,
+      playerNumber: player?.number || 0,
+      playerName: player?.name || "",
       result: pendingAttackAction.result,
       teamSide: currentTeamSide,
       positionX: 0,
@@ -250,12 +258,16 @@ export default function DataInput() {
   const handleServeDetailsConfirm = (details: any) => {
     if (!selectedPlayer || !match || !pendingServeAction) return;
 
+    const players = currentTeamSide === "home" ? homePlayers : awayPlayers;
+    const player = players?.find((p: any) => p.id === selectedPlayer);
     createPlay.mutate({
       matchId: Number(matchId),
       setNumber: match.currentSet,
       rallyNumber: (recentPlays?.length || 0) + 1,
       playType: "serve",
       playerId: selectedPlayer,
+      playerNumber: player?.number || 0,
+      playerName: player?.name || "",
       result: pendingServeAction.result,
       teamSide: currentTeamSide,
       positionX: 0,
@@ -270,12 +282,16 @@ export default function DataInput() {
   const handleReceiveDetailsConfirm = (details: any) => {
     if (!selectedPlayer || !match || !pendingReceiveAction) return;
 
+    const players = currentTeamSide === "home" ? homePlayers : awayPlayers;
+    const player = players?.find((p: any) => p.id === selectedPlayer);
     createPlay.mutate({
       matchId: Number(matchId),
       setNumber: match.currentSet,
       rallyNumber: (recentPlays?.length || 0) + 1,
       playType: "receive",
       playerId: selectedPlayer,
+      playerNumber: player?.number || 0,
+      playerName: player?.name || "",
       result: pendingReceiveAction.result,
       teamSide: currentTeamSide,
       positionX: 0,
