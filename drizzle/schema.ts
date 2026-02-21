@@ -43,8 +43,6 @@ export const teams = mysqlTable("teams", {
   teamName: varchar("teamName", { length: 255 }).notNull(),
   season: varchar("season", { length: 50 }),
   userId: int("userId").notNull(),
-  username: varchar("username", { length: 255 }),
-  passwordHash: varchar("passwordHash", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -78,7 +76,6 @@ export const matches = mysqlTable("matches", {
   venue: varchar("venue", { length: 255 }),
   homeTeamId: int("homeTeamId").notNull(),
   homeTeamName: varchar("homeTeamName", { length: 255 }).notNull(),
-  awayTeamId: int("awayTeamId"),
   awayTeamName: varchar("awayTeamName", { length: 255 }).notNull(),
   sets: int("sets").default(5).notNull(),
   isPracticeMatch: boolean("isPracticeMatch").default(false).notNull(),
