@@ -1160,28 +1160,14 @@ export default function CoachView() {
                 );
               }
 
-              // セット別にプレーをグループ化
-              const setGroups: { [key: number]: any[] } = {};
-              plays.forEach((play: any) => {
-                // setNumberがない場合はmatchのcurrentSetまたは1をデフォルトにする
-                const setNum = play.setNumber || match?.currentSet || 1;
-                if (!setGroups[setNum]) {
-                  setGroups[setNum] = [];
-                }
-                setGroups[setNum].push(play);
-              });
-
-              const setNumbers = Object.keys(setGroups).map(Number).filter(n => !isNaN(n)).sort((a, b) => a - b);
-              
-              if (setNumbers.length === 0) {
-                return (
-                  <Card>
-                    <CardContent className="p-12 text-center text-gray-500">
-                      セット情報が含まれるプレーデータがありません
-                    </CardContent>
-                  </Card>
-                );
-              }
+              // セット別分析は現在利用不可（setNumberカラムがDBにないため）
+              return (
+                <Card>
+                  <CardContent className="p-12 text-center text-gray-500">
+                    セット別分析は一時的に利用不可です
+                  </CardContent>
+                </Card>
+              );
 
               return (
                 <div className="space-y-8">

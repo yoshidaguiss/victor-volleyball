@@ -21,7 +21,6 @@ export function exportMatchToExcel(matchData: any, plays: any[]) {
   // プレー記録シート
   if (plays && plays.length > 0) {
     const playsData = plays.map((play: any) => ({
-      セット: play.setNumber || 1,
       時刻: new Date(play.timestamp).toLocaleTimeString("ja-JP"),
       チーム: play.teamSide === "home" ? matchData.homeTeamName : matchData.awayTeamName,
       選手番号: play.playerNumber || "-",
