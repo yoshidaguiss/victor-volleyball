@@ -213,8 +213,6 @@ export default function DataInput() {
     }
 
     // その他はそのまま記録
-    const players = currentTeamSide === "home" ? homePlayers : awayPlayers;
-    const player = players?.find((p: any) => p.id === selectedPlayer);
     createPlay.mutate({
       matchId: Number(matchId),
       setNumber: match.currentSet,
