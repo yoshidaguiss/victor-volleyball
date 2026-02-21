@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
-import { useTeamAuth } from "@/contexts/TeamAuthContext";
+const STORAGE_KEY = "victor_team_session";
 import { 
   Users, 
   Activity, 
@@ -27,7 +27,14 @@ import {
 export default function Home() {
   const [matchCode, setMatchCode] = useState("");
   const [, setLocation] = useLocation();
-  const { isAuthenticated, teamName } = useTeamAuth();
+  const [teamSession, setTeamSession] = useState<any>(null);
+
+  useEffect(() => {
+    const session = localStorage.getItem(STORAGE_KEY);
+    if (session) {
+      setTeamSession(JSON.parse(session));
+    }
+  }, []);
   const { data: recentMatches } = trpc.matches.listRecent.useQuery({ limit: 5 });
   const getByCodeQuery = trpc.matches.getByCode.useQuery(
     { matchCode: matchCode.toUpperCase() },
@@ -59,7 +66,7 @@ export default function Home() {
       {/* ヘッダー - ログイン/ログアウトボタン */}
       <div className="container max-w-7xl mx-auto px-4 py-4">
         <div className="flex justify-end gap-2">
-          {!isAuthenticated && (
+          {!teamSession && (
             <Link href="/auth">
               <Button variant="outline" size="sm">
                 <LogIn className="w-4 h-4 mr-2" />

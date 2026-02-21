@@ -7,13 +7,20 @@ import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { ArrowLeft, Key, Save, Trash2, Eye, EyeOff, LogOut } from "lucide-react";
-import { useTeamAuth } from "@/contexts/TeamAuthContext";
+const STORAGE_KEY = "victor_team_session";
 
 export default function Settings() {
   const [, setLocation] = useLocation();
   const [geminiApiKey, setGeminiApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
-  const { isAuthenticated, logout, teamName } = useTeamAuth();
+  const [teamSession, setTeamSession] = useState<any>(null);
+
+  useEffect(() => {
+    const session = localStorage.getItem(STORAGE_KEY);
+    if (session) {
+      setTeamSession(JSON.parse(session));
+    }
+  }, []);
 
   // APIキーを取得
   const { data: existingKey, refetch } = trpc.apiKeys.get.useQuery({ provider: "gemini" });
@@ -60,7 +67,8 @@ export default function Settings() {
   };
 
   const handleLogout = () => {
-    logout();
+    localStorage.removeItem(STORAGE_KEY);
+    setTeamSession(null);
     toast.success("ログアウトしました");
     setLocation("/");
   };
@@ -190,7 +198,7 @@ export default function Settings() {
         </Card>
 
         {/* ログアウト */}
-        {isAuthenticated && (
+        {teamSession && (
           <Card className="mt-6 border-2 border-red-200">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -198,7 +206,7 @@ export default function Settings() {
                 アカウント
               </CardTitle>
               <CardDescription>
-                {teamName}でログイン中です
+                {teamSession.teamName}でログイン中です
               </CardDescription>
             </CardHeader>
             <CardContent>

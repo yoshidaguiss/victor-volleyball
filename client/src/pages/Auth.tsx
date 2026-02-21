@@ -5,13 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useTeamAuth } from "@/contexts/TeamAuthContext";
+import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 
+const STORAGE_KEY = "victor_team_session";
+
 export default function Auth() {
   const [, setLocation] = useLocation();
-  const { login, register } = useTeamAuth();
   
   // ログインフォーム
   const [loginUsername, setLoginUsername] = useState("");
@@ -24,6 +25,9 @@ export default function Auth() {
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerLoading, setRegisterLoading] = useState(false);
 
+  const loginMutation = trpc.teamAuth.login.useMutation();
+  const registerMutation = trpc.teamAuth.register.useMutation();
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -34,9 +38,16 @@ export default function Auth() {
 
     setLoginLoading(true);
     try {
-      await login(loginUsername, loginPassword);
-      toast.success("ログインしました");
-      setLocation("/");
+      const result = await loginMutation.mutateAsync({ 
+        username: loginUsername, 
+        password: loginPassword 
+      });
+      
+      if (result.success && result.team) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(result.team));
+        toast.success("ログインしました");
+        setLocation("/");
+      }
     } catch (error: any) {
       toast.error(error.message || "ログインに失敗しました");
     } finally {
@@ -59,9 +70,17 @@ export default function Auth() {
 
     setRegisterLoading(true);
     try {
-      await register(registerTeamName, registerUsername, registerPassword);
-      toast.success("チーム登録が完了しました");
-      setLocation("/");
+      const result = await registerMutation.mutateAsync({ 
+        teamName: registerTeamName,
+        username: registerUsername, 
+        password: registerPassword 
+      });
+      
+      if (result.success && result.team) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(result.team));
+        toast.success("チーム登録が完了しました");
+        setLocation("/");
+      }
     } catch (error: any) {
       toast.error(error.message || "登録に失敗しました");
     } finally {
@@ -78,7 +97,11 @@ export default function Auth() {
             ホームに戻る
           </Button>
           <div className="mb-2 flex justify-center">
-            <img src="/victor-logo.jpeg" alt="VICTOR" className="w-full max-w-md h-auto" />
+            <img 
+              src="/victor-logo.jpeg" 
+              alt="VICTOR" 
+              className="h-24 object-contain"
+            />
           </div>
           <p className="text-gray-600">バレーボール分析システム</p>
         </div>
