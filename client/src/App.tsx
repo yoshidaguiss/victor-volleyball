@@ -4,7 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { TeamAuthProvider } from "./contexts/TeamAuthContext";
+
 import Home from "./pages/Home";
 import MatchSetup from "./pages/MatchSetup";
 import DataInput from "./pages/DataInput";
@@ -20,7 +20,7 @@ import Settings from "./pages/Settings";
 import VoiceInput from "./pages/VoiceInput";
 import AIAdvice from "./pages/AIAdvice";
 import Guide from "./pages/Guide";
-import Auth from "./pages/Auth";
+
 
 function Router() {
   return (
@@ -40,7 +40,7 @@ function Router() {
       <Route path={"/player/:playerId"} component={PlayerStats} />
       <Route path={"/settings"} component={Settings} />
       <Route path={"/guide"} component={Guide} />
-      <Route path={"/auth"} component={Auth} />
+
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
@@ -51,12 +51,10 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
-        <TeamAuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </TeamAuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

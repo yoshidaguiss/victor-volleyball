@@ -7,7 +7,7 @@ import * as db from "./db";
 import { apiKeysRouter } from "./routers/apiKeys";
 import { voiceAnalysisRouter } from "./routers/voiceAnalysis";
 import { aiAnalysisRouter } from "./routers/aiAnalysis";
-import { teamAuthRouter } from "./routers/teamAuth";
+
 
 // 試合コード生成ヘルパー
 function generateMatchCode(): string {
@@ -24,7 +24,7 @@ export const appRouter = router({
   apiKeys: apiKeysRouter,
   voiceAnalysis: voiceAnalysisRouter,
   aiAnalysis: aiAnalysisRouter,
-  teamAuth: teamAuthRouter,
+
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

@@ -3,7 +3,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { users, teams, players, matches, rallies, plays, aiAnalyses, substitutions, timeouts, serveOrders } from "../drizzle/schema";
 import type { User, InsertUser, Team, InsertTeam, Player, InsertPlayer, Match, InsertMatch, Rally, InsertRally, Play, InsertPlay, AIAnalysis, InsertAIAnalysis, Substitution, InsertSubstitution, Timeout, InsertTimeout, ServeOrder, InsertServeOrder } from "../drizzle/schema";
 import { ENV } from './_core/env';
-import { hashPassword, verifyPassword } from './passwordUtils';
+
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -115,45 +115,7 @@ export async function getTeamById(teamId: number) {
   return result.length > 0 ? result[0] : null;
 }
 
-// Team auth operations
-export async function getTeamByUsername(username: string) {
-  const db = await getDb();
-  if (!db) return null;
-  
-  const result = await db.select().from(teams).where(eq(teams.username, username)).limit(1);
-  return result.length > 0 ? result[0] : null;
-}
 
-export async function createTeamWithAuth(data: { teamName: string; username: string; password: string }) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const passwordHashed = hashPassword(data.password);
-  
-  const result = await db.insert(teams).values({
-    teamName: data.teamName,
-    username: data.username,
-    passwordHash: passwordHashed,
-    userId: 0,
-  });
-  return result[0].insertId;
-}
-
-export async function verifyTeamCredentials(username: string, password: string) {
-  const db = await getDb();
-  if (!db) return null;
-  
-  const result = await db.select().from(teams).where(eq(teams.username, username)).limit(1);
-  if (result.length === 0) return null;
-  
-  const team = result[0];
-  if (!team.passwordHash) return null;
-  
-  const isValid = verifyPassword(password, team.passwordHash);
-  if (!isValid) return null;
-  
-  return team;
-}
 
 // Player operations
 export async function createPlayer(playerData: InsertPlayer) {

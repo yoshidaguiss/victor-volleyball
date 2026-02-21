@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
-const STORAGE_KEY = "victor_team_session";
+
 import { 
   Users, 
   Activity, 
@@ -20,21 +20,14 @@ import {
   Zap,
   Mic,
   Settings,
-  LogIn,
+
   BookOpen
 } from "lucide-react";
 
 export default function Home() {
   const [matchCode, setMatchCode] = useState("");
   const [, setLocation] = useLocation();
-  const [teamSession, setTeamSession] = useState<any>(null);
 
-  useEffect(() => {
-    const session = localStorage.getItem(STORAGE_KEY);
-    if (session) {
-      setTeamSession(JSON.parse(session));
-    }
-  }, []);
   const { data: recentMatches } = trpc.matches.listRecent.useQuery({ limit: 5 });
   const getByCodeQuery = trpc.matches.getByCode.useQuery(
     { matchCode: matchCode.toUpperCase() },
@@ -63,19 +56,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      {/* ヘッダー - ログイン/ログアウトボタン */}
-      <div className="container max-w-7xl mx-auto px-4 py-4">
-        <div className="flex justify-end gap-2">
-          {!teamSession && (
-            <Link href="/auth">
-              <Button variant="outline" size="sm">
-                <LogIn className="w-4 h-4 mr-2" />
-                ログイン
-              </Button>
-            </Link>
-          )}
-        </div>
-      </div>
+
 
       {/* Hero Section */}
       <div className="container max-w-7xl mx-auto px-4 py-6 md:py-12">
