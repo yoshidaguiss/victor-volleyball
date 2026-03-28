@@ -12,4 +12,13 @@ services:
       - key: BASIC_AUTH_PASSWORD
         value: meikei
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: victor-db
+          property: connectionString
+
+databases:
+  - name: victor-db
+    databaseName: volleyball_analyzer
+    user: victor
+    plan: free
+    region: singapore
