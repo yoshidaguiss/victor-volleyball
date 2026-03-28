@@ -21,6 +21,7 @@ import Settings from "./pages/Settings";
 import VoiceInput from "./pages/VoiceInput";
 import AIAdvice from "./pages/AIAdvice";
 import Guide from "./pages/Guide";
+import DbHealth from "./pages/DbHealth";
 
 
 function Router() {
@@ -41,6 +42,7 @@ function Router() {
       <Route path={"/player/:playerId"} component={PlayerStats} />
       <Route path={"/settings"} component={Settings} />
       <Route path={"/guide"} component={Guide} />
+      <Route path={"/db-health"} component={DbHealth} />
 
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

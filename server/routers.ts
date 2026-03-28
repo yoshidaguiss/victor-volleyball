@@ -7,6 +7,7 @@ import * as db from "./db";
 import { apiKeysRouter } from "./routers/apiKeys";
 import { voiceAnalysisRouter } from "./routers/voiceAnalysis";
 import { aiAnalysisRouter } from "./routers/aiAnalysis";
+import { sql } from "drizzle-orm";
 
 
 // 試合コード生成ヘルパー
@@ -25,7 +26,23 @@ export const appRouter = router({
   voiceAnalysis: voiceAnalysisRouter,
   aiAnalysis: aiAnalysisRouter,
 
-  
+  // DB診断エンドポイント
+  dbHealth: publicProcedure.query(async () => {
+    const database = await db.getDb();
+    if (!database) {
+      return { connected: false, error: "Database not available (DATABASE_URL not set or connection failed)", tables: [] };
+    }
+    try {
+      const result = await database.execute(
+        sql`SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename`
+      );
+      const tables = (result.rows as { tablename: string }[]).map(r => r.tablename);
+      return { connected: true, error: null, tables };
+    } catch (e: any) {
+      return { connected: true, error: String(e?.message || e), tables: [] };
+    }
+  }),
+
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -43,11 +60,16 @@ export const appRouter = router({
         season: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const teamId = await db.createTeam({
-          teamName: input.teamName,
-          season: input.season,
-        });
-        return { teamId };
+        try {
+          const teamId = await db.createTeam({
+            teamName: input.teamName,
+            season: input.season,
+          });
+          return { teamId };
+        } catch (e: any) {
+          console.error("[teams.create] DB error:", e?.message, e?.code, e?.detail);
+          throw e;
+        }
       }),
 
     list: publicProcedure.query(async ({ ctx }) => {
