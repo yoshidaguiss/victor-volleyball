@@ -23,7 +23,13 @@ function BrandLogo({ size = "default" }: { size?: "default" | "sm" }) {
 
   return (
     <div className="inline-block leading-none select-none">
-      <div className={`font-black text-current ${main}`} style={{ letterSpacing: "-0.02em" }}>
+      <div
+        className={`font-black bg-clip-text text-transparent ${main}`}
+        style={{
+          letterSpacing: "-0.02em",
+          backgroundImage: "linear-gradient(100deg, #1a3560 0%, #1a3560 45%, #c75000 100%)",
+        }}
+      >
         AID ANALYTICS
       </div>
       <div className={`font-light text-orange-500 uppercase ${sub} mt-1`}>
@@ -86,13 +92,12 @@ export default function Home() {
             AIが戦況を読み解き、コーチングに必要な洞察を届けます。
           </p>
 
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-7">
+          {/* Primary CTAs */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
             <Link href="/setup">
               <Button
                 size="lg"
-                className="text-white font-bold px-8 py-6 text-base rounded-xl transition-all hover:opacity-90"
-                style={{ backgroundColor: NAVY, boxShadow: `0 6px 20px ${NAVY}35` }}
+                className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-6 text-base rounded-xl shadow-lg shadow-orange-200 transition-colors"
               >
                 <Trophy className="w-4 h-4 mr-2" />
                 試合を開始する
@@ -107,6 +112,23 @@ export default function Home() {
               >
                 <History className="w-4 h-4 mr-2" />
                 試合履歴
+              </Button>
+            </Link>
+          </div>
+
+          {/* Secondary nav */}
+          <div className="flex gap-2 justify-center mb-7">
+            <Link href="/teams">
+              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-700 rounded-lg text-xs px-3">
+                <Users className="w-3.5 h-3.5 mr-1.5" />
+                チーム管理
+              </Button>
+            </Link>
+            <span className="text-gray-200 text-sm self-center">|</span>
+            <Link href="/guide">
+              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-700 rounded-lg text-xs px-3">
+                <BookOpen className="w-3.5 h-3.5 mr-1.5" />
+                使い方ガイド
               </Button>
             </Link>
           </div>
