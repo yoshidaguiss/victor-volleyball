@@ -162,19 +162,46 @@ export default function CoachView() {
     };
   };
 
-  // セット別スコア推移データ
+  // セット別スコア推移データ（棒グラフ用）
   const setProgressionData = useMemo(() => {
     if (!match) return [];
-    
+
     const scoreHome = Array.isArray(match.scoreHome) ? match.scoreHome : [];
     const scoreAway = Array.isArray(match.scoreAway) ? match.scoreAway : [];
-    
+
     return scoreHome.map((home, idx) => ({
       set: `第${idx + 1}セット`,
       home,
       away: scoreAway[idx] || 0,
     }));
   }, [match]);
+
+  // 現在セットのラリー別スコア推移（ラインチャート用）
+  const currentSetScoreProgression = useMemo(() => {
+    if (!plays || !match) return [];
+
+    const currentSet = match.currentSet || 1;
+    const setPlays = (plays as any[]).filter(
+      (p) => p.setNumber === currentSet && (p.result === "point" || p.result === "error")
+    );
+
+    let home = 0;
+    let away = 0;
+    const data: { rally: number; home: number; away: number }[] = [{ rally: 0, home: 0, away: 0 }];
+
+    setPlays.forEach((p, i) => {
+      if (p.result === "point") {
+        if (p.teamSide === "home") home++;
+        else away++;
+      } else {
+        if (p.teamSide === "home") away++;
+        else home++;
+      }
+      data.push({ rally: i + 1, home, away });
+    });
+
+    return data;
+  }, [plays, match]);
 
   // チーム比較レーダーチャートデータ
   const teamComparisonData = useMemo(() => {
@@ -456,6 +483,64 @@ export default function CoachView() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* 現在セットのスコア推移 */}
+            {currentSetScoreProgression.length > 1 && (
+              <Card className="bg-white/80 backdrop-blur-sm border-gray-200 soft-shadow">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-orange-500" />
+                    第{match.currentSet}セット 点数推移
+                    <span className="ml-auto text-sm font-normal text-muted-foreground">
+                      ラリー別スコア
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={260}>
+                    <LineChart data={currentSetScoreProgression}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis
+                        dataKey="rally"
+                        label={{ value: "ラリー", position: "insideBottomRight", offset: -8, fontSize: 11 }}
+                        tick={{ fontSize: 11 }}
+                      />
+                      <YAxis tick={{ fontSize: 11 }} />
+                      <Tooltip
+                        formatter={(value, name) => [
+                          value,
+                          name === "home" ? match.homeTeamName : match.awayTeamName,
+                        ]}
+                        labelFormatter={(label) => `ラリー ${label}`}
+                      />
+                      <Legend
+                        formatter={(value) =>
+                          value === "home" ? match.homeTeamName : match.awayTeamName
+                        }
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="home"
+                        stroke="#f97316"
+                        strokeWidth={2.5}
+                        dot={false}
+                        activeDot={{ r: 4 }}
+                        name="home"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="away"
+                        stroke="#3b82f6"
+                        strokeWidth={2.5}
+                        dot={false}
+                        activeDot={{ r: 4 }}
+                        name="away"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* 選手統計タブ */}

@@ -187,9 +187,22 @@ export async function updateMatch(matchId: number, updates: Partial<Match>) {
 export async function getMatchesByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  
+
   // Return all matches since we removed authentication
   return await db.select().from(matches).orderBy(desc(matches.date));
+}
+
+export async function deleteMatch(matchId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(plays).where(eq(plays.matchId, matchId));
+  await db.delete(rallies).where(eq(rallies.matchId, matchId));
+  await db.delete(substitutions).where(eq(substitutions.matchId, matchId));
+  await db.delete(timeouts).where(eq(timeouts.matchId, matchId));
+  await db.delete(serveOrders).where(eq(serveOrders.matchId, matchId));
+  await db.delete(aiAnalyses).where(eq(aiAnalyses.matchId, matchId));
+  await db.delete(matches).where(eq(matches.id, matchId));
 }
 
 // Rally operations

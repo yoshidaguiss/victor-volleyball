@@ -197,6 +197,13 @@ export const appRouter = router({
       return await db.getMatchesByUserId(ctx.user?.id || 0);
     }),
 
+    delete: publicProcedure
+      .input(z.object({ matchId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteMatch(input.matchId);
+        return { success: true };
+      }),
+
     nextSet: publicProcedure
       .input(z.object({
         matchId: z.number(),

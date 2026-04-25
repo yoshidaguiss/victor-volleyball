@@ -1,40 +1,28 @@
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import * as db from "../db";
 import { generateWithGemini } from "../_core/gemini";
 import { TRPCError } from "@trpc/server";
-import { getDb } from "../db";
-import { apiKeys } from "../../drizzle/schema";
-import { eq, and } from "drizzle-orm";
-import { decryptApiKey } from "../apiKeyEncryption";
+import { ENV } from "../_core/env";
 
 export const aiAnalysisRouter = router({
   /**
    * 試合状況を分析して戦術提案を生成
    */
-  generateTacticalAdvice: protectedProcedure
+  generateTacticalAdvice: publicProcedure
     .input(z.object({
       matchId: z.number(),
     }))
-    .mutation(async ({ input, ctx }) => {
-      // APIキーを取得
-      const database = await getDb();
-      if (!database) throw new Error("Database not available");
-
-      const apiKeyRecord = await database
-        .select()
-        .from(apiKeys)
-        .where(and(eq(apiKeys.userId, ctx.user.id), eq(apiKeys.provider, "gemini")))
-        .limit(1);
-
-      if (apiKeyRecord.length === 0) {
+    .mutation(async ({ input }) => {
+      const apiKey = ENV.geminiApiKey;
+      if (!apiKey) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
-          message: "Gemini APIキーが設定されていません。設定画面からAPIキーを登録してください。",
+          message: "GEMINI_API_KEY 環境変数が設定されていません。",
         });
       }
 
-      const decryptedApiKey = decryptApiKey(apiKeyRecord[0].encryptedKey);
+      const decryptedApiKey = apiKey;
 
       // 試合情報を取得
       const match = await db.getMatchById(input.matchId);
@@ -50,11 +38,12 @@ export const aiAnalysisRouter = router({
 
       // チーム情報を取得
       const homeTeam = match.homeTeamId ? await db.getTeamById(match.homeTeamId) : null;
-      const awayTeam = null; // awayTeamIdはスキーマにないため
+      const awayTeamId = (match as any).awayTeamId;
+      const awayTeam = awayTeamId ? await db.getTeamById(awayTeamId) : null;
 
       // 選手情報を取得
       const homePlayers = match.homeTeamId && match.homeTeamId > 0 ? await db.getPlayersByTeamId(match.homeTeamId) : [];
-      const awayPlayers: any[] = []; // awayTeamIdはスキーマにないため、プレーデータから抽出
+      const awayPlayers: any[] = awayTeamId ? await db.getPlayersByTeamId(awayTeamId) : [];
 
       // 試合状況を分析
       const analysisPrompt = buildAnalysisPrompt(match, plays, homeTeam, awayTeam, homePlayers, awayPlayers);

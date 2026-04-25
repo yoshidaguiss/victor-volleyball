@@ -7,6 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import PasswordGate from "./components/PasswordGate";
 
 import Home from "./pages/Home";
+import Matches from "./pages/Matches";
 import MatchSetup from "./pages/MatchSetup";
 import DataInput from "./pages/DataInput";
 import CoachView from "./pages/CoachView";
@@ -28,6 +29,7 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/matches"} component={Matches} />
       <Route path={"/setup"} component={MatchSetup} />
       <Route path={"/input/:matchId"} component={DataInput} />
       <Route path={"/voice/:matchId"} component={VoiceInput} />
