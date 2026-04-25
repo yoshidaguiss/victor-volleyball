@@ -1,0 +1,1 @@
+ALTER TABLE "plays" ADD COLUMN IF NOT EXISTS "setNumber" integer NOT NULL DEFAULT 1;

@@ -1,0 +1,1 @@
+ALTER TABLE `plays` ADD `matchId` int NOT NULL;
