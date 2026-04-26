@@ -248,6 +248,13 @@ export async function getPlaysByRally(rallyId: number) {
   return await db.select().from(plays).where(eq(plays.rallyId, rallyId));
 }
 
+export async function getPlayById(playId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(plays).where(eq(plays.id, playId)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
 export async function getPlaysByMatch(matchId: number) {
   const db = await getDb();
   if (!db) return [];

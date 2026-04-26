@@ -12,6 +12,7 @@ import TimeoutDialog from "@/components/TimeoutDialog";
 import SubstitutionDialog from "@/components/SubstitutionDialog";
 import BlockDetailsDialog from "@/components/BlockDetailsDialog";
 import SetDetailsDialog from "@/components/SetDetailsDialog";
+import ViolationDialog, { type ViolationType } from "@/components/ViolationDialog";
 import {
   ArrowLeft,
   Clock,
@@ -31,7 +32,7 @@ import {
  * - 最小限の入力で最大限のデータ量
  */
 
-type PlayType = "serve" | "receive" | "set" | "attack" | "block" | "dig";
+type PlayType = "serve" | "receive" | "set" | "attack" | "block" | "dig" | "violation";
 type PlayResult = "point" | "error" | "continue";
 
 interface QuickAction {
@@ -63,6 +64,8 @@ export default function DataInput() {
   const [pendingBlockAction, setPendingBlockAction] = useState<QuickAction | null>(null);
   const [showSetDetailsDialog, setShowSetDetailsDialog] = useState(false);
   const [pendingSetAction, setPendingSetAction] = useState<QuickAction | null>(null);
+  const [showViolationDialog, setShowViolationDialog] = useState(false);
+  const [pendingViolationAction, setPendingViolationAction] = useState<QuickAction | null>(null);
 
   // データ取得
   const { data: match, refetch: refetchMatch } = trpc.matches.getById.useQuery(
@@ -188,6 +191,12 @@ export default function DataInput() {
         { playType: "block" as PlayType, result: "error" as PlayResult, label: "ブロックミス", color: "bg-gradient-to-br from-rose-500 to-rose-600" },
       ],
     },
+    {
+      title: "🚨 反則",
+      actions: [
+        { playType: "violation" as PlayType, result: "error" as PlayResult, label: "反則を記録", color: "bg-gradient-to-br from-red-600 to-red-700" },
+      ],
+    },
   ];
 
   // プレー記録
@@ -218,6 +227,13 @@ export default function DataInput() {
     if (action.playType === "receive") {
       setPendingReceiveAction(action);
       setShowReceiveDetailsDialog(true);
+      return;
+    }
+
+    // 反則の場合、種別ダイアログを表示
+    if (action.playType === "violation") {
+      setPendingViolationAction(action);
+      setShowViolationDialog(true);
       return;
     }
 
@@ -307,6 +323,28 @@ export default function DataInput() {
     });
 
     setPendingReceiveAction(null);
+  };
+
+  // 反則確認ハンドラー
+  const handleViolationConfirm = (violationType: ViolationType) => {
+    if (!selectedPlayer || !match || !pendingViolationAction) return;
+    const players = currentTeamSide === "home" ? homePlayers : awayPlayers;
+    const player = players?.find((p: any) => p.id === selectedPlayer);
+    createPlay.mutate({
+      matchId: Number(matchId),
+      setNumber: match.currentSet,
+      rallyNumber: (recentPlays?.length || 0) + 1,
+      playType: "violation",
+      playerId: selectedPlayer,
+      playerNumber: player?.number || 0,
+      playerName: player?.name || "",
+      result: "error",
+      teamSide: currentTeamSide,
+      positionX: 0,
+      positionY: 0,
+      details: JSON.stringify({ violationType }),
+    });
+    setPendingViolationAction(null);
   };
 
   // 現在のチームの選手
@@ -763,6 +801,12 @@ export default function DataInput() {
           onOpenChange={setShowSubstitutionDialog}
         />
       )}
+
+      <ViolationDialog
+        open={showViolationDialog}
+        onClose={() => { setShowViolationDialog(false); setPendingViolationAction(null); }}
+        onConfirm={handleViolationConfirm}
+      />
 
       {/* キーボードショートカットヘルプ */}
       {showShortcutHelp && (

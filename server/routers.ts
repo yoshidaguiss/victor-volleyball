@@ -143,11 +143,36 @@ export const appRouter = router({
         awayTeamName: z.string(),
         sets: z.number().default(5),
         isPracticeMatch: z.boolean().default(false),
+        autoCreateAwayPlayers: z.boolean().default(false),
       }))
       .mutation(async ({ ctx, input }) => {
         const matchCode = generateMatchCode();
+
+        let awayTeamId = input.awayTeamId;
+
+        // 相手チームを自動作成（1〜20番の選手付き）
+        if (input.autoCreateAwayPlayers && !awayTeamId) {
+          awayTeamId = await db.createTeam({ teamName: input.awayTeamName });
+          for (let n = 1; n <= 20; n++) {
+            await db.createPlayer({
+              teamId: awayTeamId,
+              number: n,
+              name: `${n}番`,
+              position: "WS",
+              isLibero: false,
+            });
+          }
+        }
+
         const matchId = await db.createMatch({
-          ...input,
+          date: input.date,
+          venue: input.venue,
+          homeTeamId: input.homeTeamId,
+          homeTeamName: input.homeTeamName,
+          awayTeamId: awayTeamId,
+          awayTeamName: input.awayTeamName,
+          sets: input.sets,
+          isPracticeMatch: input.isPracticeMatch,
           matchCode,
           status: "preparing",
           currentSet: 1,
@@ -288,7 +313,7 @@ export const appRouter = router({
         playerId: z.number(),
         playerNumber: z.number(),
         playerName: z.string(),
-        playType: z.enum(["serve", "receive", "set", "attack", "block", "dig"]),
+        playType: z.enum(["serve", "receive", "set", "attack", "block", "dig", "violation"]),
         result: z.enum(["point", "continue", "error"]),
         teamSide: z.enum(["home", "away"]).default("home"),
         positionX: z.number(),
@@ -388,7 +413,30 @@ export const appRouter = router({
     delete: publicProcedure
       .input(z.object({ playId: z.number() }))
       .mutation(async ({ input }) => {
+        // スコアに影響するプレーなら先に取得してから逆算
+        const play = await db.getPlayById(input.playId);
         await db.deletePlay(input.playId);
+
+        if (play && (play.result === "point" || play.result === "error")) {
+          const match = await db.getMatchById(play.matchId);
+          if (match) {
+            const scoreHome = [...((match.scoreHome as number[]) || [])];
+            const scoreAway = [...((match.scoreAway as number[]) || [])];
+            const setIdx = ((play as any).setNumber || 1) - 1;
+
+            while (scoreHome.length <= setIdx) scoreHome.push(0);
+            while (scoreAway.length <= setIdx) scoreAway.push(0);
+
+            const scoringTeam = play.result === "point"
+              ? play.teamSide
+              : (play.teamSide === "home" ? "away" : "home");
+
+            if (scoringTeam === "home" && scoreHome[setIdx] > 0) scoreHome[setIdx]--;
+            else if (scoringTeam === "away" && scoreAway[setIdx] > 0) scoreAway[setIdx]--;
+
+            await db.updateMatch(play.matchId, { scoreHome, scoreAway });
+          }
+        }
         return { success: true };
       }),
   }),

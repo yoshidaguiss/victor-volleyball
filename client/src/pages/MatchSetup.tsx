@@ -22,6 +22,7 @@ export default function MatchSetup() {
   const [awayTeamName, setAwayTeamName] = useState("");
   const [homeTeamId, setHomeTeamId] = useState<number | null>(null);
   const [awayTeamId, setAwayTeamId] = useState<number | null>(null);
+  const [autoCreateAwayPlayers, setAutoCreateAwayPlayers] = useState(true);
   const [sets, setSets] = useState(5);
   const [matchCode, setMatchCode] = useState("");
   const [createdMatch, setCreatedMatch] = useState<{ matchId: number; matchCode: string } | null>(null);
@@ -54,6 +55,7 @@ export default function MatchSetup() {
       awayTeamName,
       sets,
       isPracticeMatch: false,
+      autoCreateAwayPlayers: !awayTeamId && autoCreateAwayPlayers,
     });
   };
   
@@ -242,6 +244,24 @@ export default function MatchSetup() {
                       placeholder="例: △△高校"
                     />
                   </div>
+
+                  {/* 相手選手の自動生成（awayTeamIdが未選択の場合のみ表示） */}
+                  {!awayTeamId && (
+                    <label className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-0.5 accent-orange-500"
+                        checked={autoCreateAwayPlayers}
+                        onChange={(e) => setAutoCreateAwayPlayers(e.target.checked)}
+                      />
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">相手チームに1〜20番の選手を自動登録する</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          チーム名だけ入力すれば#1〜#20の選手が自動作成されます。試合後に名前を編集できます。
+                        </div>
+                      </div>
+                    </label>
+                  )}
 
                   <div>
                     <Label htmlFor="venue">会場（任意）</Label>

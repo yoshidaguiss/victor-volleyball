@@ -45,8 +45,10 @@ async function setup() {
     EXCEPTION WHEN duplicate_object THEN null; END $$`);
 
     await client.query(`DO $$ BEGIN
-      CREATE TYPE "play_type" AS ENUM('serve', 'receive', 'set', 'attack', 'block', 'dig');
+      CREATE TYPE "play_type" AS ENUM('serve', 'receive', 'set', 'attack', 'block', 'dig', 'violation');
     EXCEPTION WHEN duplicate_object THEN null; END $$`);
+    // 既存DBへの追加（idempotent）
+    await client.query(`ALTER TYPE "play_type" ADD VALUE IF NOT EXISTS 'violation'`);
 
     await client.query(`DO $$ BEGIN
       CREATE TYPE "team_side" AS ENUM('home', 'away');
