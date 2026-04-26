@@ -688,14 +688,15 @@ export default function DataInput() {
                       p => p.id === play.playerId
                     );
                     
-                    const playTypeLabel = {
+                    const playTypeLabel = ({
                       serve: "サーブ",
                       receive: "レシーブ",
                       set: "セット",
                       attack: "アタック",
                       block: "ブロック",
                       dig: "ディグ",
-                    }[play.playType];
+                      violation: "反則",
+                    } as Record<string, string>)[play.playType] ?? play.playType;
                     
                     const resultLabel = {
                       point: "得点",
@@ -706,27 +707,30 @@ export default function DataInput() {
                     return (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg group"
+                        className="flex items-center gap-2 p-2.5 bg-gray-50 rounded-lg"
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="font-bold text-lg">#{player?.number}</span>
-                          <span className="text-gray-700">{player?.name}</span>
-                          <span className="text-gray-500">{playTypeLabel}</span>
+                        {/* 左: 選手情報 */}
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <span className="font-bold text-sm shrink-0">#{player?.number}</span>
+                          <span className="text-gray-700 text-sm truncate">{player?.name}</span>
+                          <span className="text-gray-400 text-xs shrink-0">{playTypeLabel}</span>
                         </div>
-                        <div className="flex items-center gap-2">
+                        {/* 右: バッジ + 削除ボタン（常に表示） */}
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <Badge
                             variant={
                               play.result === "point" ? "default" :
                               play.result === "error" ? "destructive" :
                               "secondary"
                             }
+                            className="text-xs"
                           >
                             {resultLabel}
                           </Badge>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            className="h-7 w-7 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50 shrink-0"
                             onClick={() => handleDeletePlay(play.id, player?.name || "不明", playTypeLabel || "不明")}
                           >
                             ×
